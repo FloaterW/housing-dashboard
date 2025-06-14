@@ -25,8 +25,9 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
   const formatChange = (value) => {
     const isPositive = value > 0;
     return (
-      <span className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-        {isPositive ? '↑' : '↓'} {Math.abs(value)}%
+      <span className={`text-sm font-medium flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+        <span className="text-lg mr-1">{isPositive ? '↑' : '↓'}</span>
+        {Math.abs(value)}%
       </span>
     );
   };
@@ -37,32 +38,32 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
       value: formatCurrency(metrics.avgPrice),
       change: metrics.priceChange,
       icon: '💰',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
+      bgGradient: 'from-blue-400 to-blue-600',
+      shadowColor: 'shadow-blue-200',
     },
     {
       title: 'Total Sales',
       value: metrics.totalSales.toLocaleString(),
       change: metrics.salesChange,
       icon: '📊',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
+      bgGradient: 'from-green-400 to-green-600',
+      shadowColor: 'shadow-green-200',
     },
     {
       title: 'Days on Market',
       value: metrics.avgDaysOnMarket,
       change: metrics.daysChange,
       icon: '📅',
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-200',
+      bgGradient: 'from-yellow-400 to-yellow-600',
+      shadowColor: 'shadow-yellow-200',
     },
     {
       title: 'Active Inventory',
       value: metrics.inventory.toLocaleString(),
       change: metrics.inventoryChange,
       icon: '🏠',
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200',
+      bgGradient: 'from-purple-400 to-purple-600',
+      shadowColor: 'shadow-purple-200',
     },
   ];
 
@@ -71,18 +72,37 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
       {metricCards.map((metric, index) => (
         <div
           key={index}
-          className={`${metric.bgColor} ${metric.borderColor} border-2 rounded-xl p-6 transition-all duration-300 hover:shadow-lg`}
+          className={`
+            transform transition-all duration-500 hover:scale-105 hover:-translate-y-2
+            animate-slide-up
+          `}
+          style={{ animationDelay: `${index * 100}ms` }}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-600 font-medium">{metric.title}</h3>
-            <span className="text-2xl">{metric.icon}</span>
-          </div>
-          <div className="space-y-2">
-            <p className="text-2xl font-bold text-gray-800">{metric.value}</p>
-            <div className="flex items-center space-x-2">
-              {formatChange(metric.change)}
-              <span className="text-xs text-gray-500">vs last month</span>
+          <div className={`
+            bg-gradient-to-br ${metric.bgGradient} rounded-xl p-6 text-white
+            shadow-xl ${metric.shadowColor} hover:shadow-2xl
+            relative overflow-hidden group
+          `}>
+            {/* Animated background effect */}
+            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+            
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white/90 font-medium text-sm uppercase tracking-wider">{metric.title}</h3>
+                <span className="text-3xl animate-pulse">{metric.icon}</span>
+              </div>
+              <div className="space-y-2">
+                <p className="text-3xl font-bold">{metric.value}</p>
+                <div className="flex items-center justify-between">
+                  {formatChange(metric.change)}
+                  <span className="text-xs text-white/70">vs last month</span>
+                </div>
+              </div>
             </div>
+            
+            {/* Decorative element */}
+            <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
           </div>
         </div>
       ))}

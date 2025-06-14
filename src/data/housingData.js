@@ -333,4 +333,107 @@ export const getDataForRegionAndType = (dataType, region, housingType) => {
   if (!regionData) return null;
   
   return regionData[housingType] || regionData['All Types'] || null;
+};
+
+// Enhanced market data function
+export const getEnhancedMarketData = (region, housingType) => {
+  const baseMetrics = getDataForRegionAndType('keyMetrics', region, housingType) || housingData.keyMetrics['Peel Region']['All Types'];
+  
+  // Calculate additional metrics
+  const enhancedMetrics = {
+    ...baseMetrics,
+    // Price metrics
+    averagePrice: `$${baseMetrics.avgPrice.toLocaleString()}`,
+    medianPrice: `$${Math.round(baseMetrics.avgPrice * 0.92).toLocaleString()}`,
+    pricePerSqFt: `$${Math.round(baseMetrics.avgPrice / 1800)}`,
+    listToSaleRatio: 102.5,
+    
+    // Changes
+    medianPriceChange: baseMetrics.priceChange - 0.5,
+    pricePerSqFtChange: baseMetrics.priceChange + 1.2,
+    listToSaleChange: 1.2,
+    
+    // Activity metrics
+    totalSales: baseMetrics.totalSales,
+    daysOnMarket: baseMetrics.avgDaysOnMarket,
+    newListings: Math.round(baseMetrics.totalSales * 1.2),
+    absorptionRate: 65,
+    
+    // Activity changes
+    daysOnMarketChange: baseMetrics.daysChange,
+    newListingsChange: 8.5,
+    absorptionRateChange: 3.2,
+    
+    // Market conditions
+    monthsOfInventory: (baseMetrics.inventory / baseMetrics.totalSales).toFixed(1),
+    priceToIncome: 12.5,
+    sellerMarketIndex: 78,
+    affordabilityIndex: 42,
+    
+    // Market changes
+    priceToIncomeChange: 5.2,
+  };
+  
+  return { enhancedMetrics };
+};
+
+// Market trends data function
+export const getMarketTrendsData = (region, housingType) => {
+  const priceData = getDataForRegionAndType('priceData', region, housingType) || [];
+  const salesData = getDataForRegionAndType('salesData', region, housingType) || [];
+  
+  // Combine price and sales data with additional metrics
+  return priceData.map((pricePoint, index) => {
+    const salesPoint = salesData[index] || { sales: 0 };
+    const basePrice = priceData[0]?.price || 1000000;
+    const baseSales = salesData[0]?.sales || 100;
+    
+    return {
+      month: pricePoint.month.split(' ')[0], // Just the month name
+      price: pricePoint.price,
+      sales: salesPoint.sales,
+      priceIndex: Math.round((pricePoint.price / basePrice) * 100),
+      salesIndex: Math.round((salesPoint.sales / baseSales) * 100),
+      affordabilityIndex: Math.round(100 - ((pricePoint.price / basePrice) * 50)),
+      listToSaleRatio: 98 + Math.random() * 8,
+    };
+  });
+};
+
+// Regional comparison data function
+export const getRegionalComparisonData = (metric, housingType) => {
+  const regions = ['Mississauga', 'Brampton', 'Caledon', 'Peel Region'];
+  
+  return regions.map(region => {
+    const metrics = getDataForRegionAndType('keyMetrics', region, housingType) || housingData.keyMetrics['Peel Region']['All Types'];
+    
+    switch(metric) {
+      case 'averagePrice':
+        return {
+          name: region,
+          value: metrics.avgPrice,
+          ontarioAverage: 850000,
+        };
+      case 'pricePerSqFt':
+        return {
+          name: region,
+          value: Math.round(metrics.avgPrice / 1800),
+          ontarioAverage: 472,
+        };
+      case 'daysOnMarket':
+        return {
+          name: region,
+          value: metrics.avgDaysOnMarket,
+          ontarioAverage: 22,
+        };
+      case 'absorptionRate':
+        return {
+          name: region,
+          value: Math.round(65 + (Math.random() * 20 - 10)),
+          ontarioAverage: 60,
+        };
+      default:
+        return { name: region, value: 0, ontarioAverage: 0 };
+    }
+  });
 }; 
