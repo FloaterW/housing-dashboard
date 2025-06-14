@@ -1,23 +1,36 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import Dashboard from './components/Dashboard';
 
 function App() {
+  const [selectedRegion, setSelectedRegion] = useState('Peel Region');
+  const [selectedHousingType, setSelectedHousingType] = useState('All Types');
+
+  const handleRegionChange = (region) => {
+    setSelectedRegion(region);
+  };
+
+  const handleHousingTypeChange = (type) => {
+    setSelectedHousingType(type);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar 
+          onRegionChange={handleRegionChange} 
+          onHousingTypeChange={handleHousingTypeChange}
+          selectedRegion={selectedRegion}
+          selectedHousingType={selectedHousingType}
+        />
+        <Dashboard 
+          selectedRegion={selectedRegion}
+          selectedHousingType={selectedHousingType}
+        />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,8 @@
 {
   "name": "housing-dashboard",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "A modern housing market dashboard for real-time analytics and insights",
+  "author": "Your Name",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
@@ -10,6 +12,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-scripts": "5.0.1",
+    "recharts": "^2.15.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -35,5 +38,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.5",
+    "tailwindcss": "^4.1.10"
   }
 }
