@@ -3,6 +3,7 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import PopupTemplate from '@arcgis/core/PopupTemplate';
 import '@arcgis/core/assets/esri/themes/light/main.css';
@@ -11,9 +12,10 @@ function HousingMapDashboard() {
   const mapRef = useRef();
   const [mapView, setMapView] = useState(null);
   const [selectedMetric, setSelectedMetric] = useState('avgPrice');
+  const [mapType, setMapType] = useState('markers'); // 'markers', 'heatmap'
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sample housing data with geographic coordinates for Peel Region municipalities
+  // Extended housing data with geographic coordinates for Peel Region and surrounding areas
   const housingGeoData = [
     {
       municipality: 'Mississauga',
@@ -44,6 +46,27 @@ function HousingMapDashboard() {
       riskScore: 68,
       marketTemp: 68,
       inventory: 3.2
+    },
+    // Additional neighborhoods for better heatmap
+    {
+      municipality: 'Oakville',
+      geometry: [-79.6876, 43.4675],
+      avgPrice: 1750000,
+      priceGrowth: 9.8,
+      affordabilityRate: 32.1,
+      riskScore: 78,
+      marketTemp: 79,
+      inventory: 1.5
+    },
+    {
+      municipality: 'Milton',
+      geometry: [-79.8774, 43.5183],
+      avgPrice: 1450000,
+      priceGrowth: 12.1,
+      affordabilityRate: 41.8,
+      riskScore: 76,
+      marketTemp: 81,
+      inventory: 2.1
     }
   ];
 
@@ -119,11 +142,79 @@ function HousingMapDashboard() {
         });
       };
 
-      // Function to update graphics based on selected metric
-      const updateMapGraphics = () => {
+
+      // Function to create heatmap points
+      const createHeatmapLayer = () => {
         housingLayer.removeAll();
 
+        // Create multiple points for better heatmap effect
         housingGeoData.forEach(data => {
+          const intensity = getHeatmapIntensity(data);
+          
+          // Create multiple points around the main point for density
+          for (let i = 0; i < intensity; i++) {
+            const offsetLat = (Math.random() - 0.5) * 0.02; // Small random offset
+            const offsetLng = (Math.random() - 0.5) * 0.02;
+            
+            const point = {
+              type: 'point',
+              longitude: data.geometry[0] + offsetLng,
+              latitude: data.geometry[1] + offsetLat
+            };
+
+            const symbol = new SimpleMarkerSymbol({
+              color: [255, 69, 0, 0.8], // Hot orange with transparency
+              size: 8,
+              outline: {
+                color: [255, 255, 255, 0],
+                width: 0
+              }
+            });
+
+            const graphic = new Graphic({
+              geometry: point,
+              symbol: symbol,
+              attributes: data
+            });
+
+            housingLayer.add(graphic);
+          }
+        });
+      };
+
+      // Function to get heatmap intensity
+      const getHeatmapIntensity = (data) => {
+        let value;
+        
+        switch(selectedMetric) {
+          case 'avgPrice':
+            value = Math.round(data.avgPrice / 100000); // Scale down price
+            break;
+          case 'riskScore':
+            value = Math.round(data.riskScore / 10);
+            break;
+          case 'marketTemp':
+            value = Math.round(data.marketTemp / 10);
+            break;
+          case 'affordabilityRate':
+            value = Math.round(data.affordabilityRate / 10);
+            break;
+          default:
+            value = Math.round(data.avgPrice / 100000);
+        }
+        
+        return Math.max(5, Math.min(25, value)); // Between 5 and 25 points
+      };
+
+      // Function to update graphics based on selected metric and map type
+      const updateMapGraphics = () => {
+        if (mapType === 'heatmap') {
+          createHeatmapLayer();
+        } else {
+          // Original markers
+          housingLayer.removeAll();
+
+          housingGeoData.forEach(data => {
           const point = {
             type: 'point',
             longitude: data.geometry[0],
@@ -161,6 +252,7 @@ function HousingMapDashboard() {
 
           housingLayer.add(graphic);
         });
+        }
       };
 
       // Add layer to map
@@ -183,7 +275,7 @@ function HousingMapDashboard() {
       console.error('Error loading ArcGIS modules:', err);
       setIsLoading(false);
     }
-  }, [selectedMetric]);
+  }, [selectedMetric, mapType]);
 
   // Update map when metric changes
   useEffect(() => {
@@ -202,34 +294,77 @@ function HousingMapDashboard() {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-800 flex items-center mb-2">
-            <span className="mr-2">🗺️</span>
-            Geographic Housing Market Analysis
-          </h3>
-          <p className="text-sm text-gray-600">
-            Interactive map visualization of housing market trends across Peel Region
-          </p>
+      <div className="space-y-6 mb-8">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div>
+            <h3 className="text-lg font-bold text-gray-800 flex items-center mb-3">
+              <span className="mr-3">🗺️</span>
+              Geographic Housing Market Analysis
+            </h3>
+            <p className="text-sm text-gray-600">
+              Interactive map visualization of housing market trends across Peel Region
+            </p>
+          </div>
         </div>
         
-        <div className="flex space-x-2 mt-4 lg:mt-0">
-          {metrics.map((metric) => (
-            <button
-              key={metric.id}
-              onClick={() => setSelectedMetric(metric.id)}
-              className={`
-                px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-1
-                ${selectedMetric === metric.id
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }
-              `}
-            >
-              <span>{metric.icon}</span>
-              <span>{metric.label}</span>
-            </button>
-          ))}
+        {/* Controls Section */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          {/* Metric Selection */}
+          <div className="flex-1">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Select Metric</h4>
+            <div className="flex flex-wrap gap-4">
+              {metrics.map((metric) => (
+                <button
+                  key={metric.id}
+                  onClick={() => setSelectedMetric(metric.id)}
+                  className={`
+                    px-5 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 shadow-sm min-w-[140px]
+                    ${selectedMetric === metric.id
+                      ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md border border-gray-200'
+                    }
+                  `}
+                >
+                  <span className="text-lg">{metric.icon}</span>
+                  <span>{metric.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Map Type Toggle */}
+          <div className="flex-shrink-0">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Visualization Type</h4>
+            <div className="flex bg-gray-200 rounded-xl p-2 shadow-sm">
+              <button
+                onClick={() => setMapType('markers')}
+                className={`
+                  px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 min-w-[120px] justify-center
+                  ${mapType === 'markers'
+                    ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  }
+                `}
+              >
+                <span className="text-lg">📍</span>
+                <span>Markers</span>
+              </button>
+              <button
+                onClick={() => setMapType('heatmap')}
+                className={`
+                  px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 min-w-[120px] justify-center
+                  ${mapType === 'heatmap'
+                    ? 'bg-orange-600 text-white shadow-md transform scale-105'
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  }
+                `}
+              >
+                <span className="text-lg">🔥</span>
+                <span>Heatmap</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

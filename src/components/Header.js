@@ -8,7 +8,7 @@ function Header() {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent animate-pulse"></div>
       </div>
       
-      <div className="container mx-auto px-4 py-6 relative z-10">
+      <div className="w-full pl-6 pr-2 py-6 relative z-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-slide-up flex items-center">
@@ -28,7 +28,7 @@ function Header() {
         </div>
         
         {/* Market status bar */}
-        <div className="mt-4 flex flex-wrap gap-4 text-sm animate-slide-up" style={{ animationDelay: '300ms' }}>
+        <div className="mt-4 flex flex-wrap justify-start gap-4 text-sm animate-slide-up" style={{ animationDelay: '300ms' }}>
           <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2">
             <span className="text-green-300">▲</span>
             <span>Market Up 5.2%</span>

@@ -15,7 +15,7 @@ function Sidebar({ onRegionChange, onHousingTypeChange, selectedRegion, selected
   };
 
   return (
-    <aside className="w-64 bg-white shadow-2xl p-6 overflow-y-auto">
+    <aside className="w-full p-6 overflow-y-auto sticky top-0 max-h-screen">
       <div className="mb-8 animate-slide-up">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
           <span className="mr-2 text-xl">📍</span>

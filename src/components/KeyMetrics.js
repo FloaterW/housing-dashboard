@@ -32,6 +32,7 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     );
   };
 
+
   const metricCards = [
     {
       title: 'Average Price',
@@ -68,7 +69,14 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div>
+      {/* Header */}
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold text-gray-800">Key Performance Indicators</h3>
+        <p className="text-sm text-gray-600">{selectedRegion} - {selectedHousingType}</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metricCards.map((metric, index) => (
         <div
           key={index}
@@ -106,6 +114,7 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }
