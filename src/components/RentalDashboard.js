@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { vacancyByBedroom2024, rentalStockSummary2024 } from '../data/rental';
+import RentalPriceTrendsChart from './charts/RentalPriceTrendsChart';
+import RentalYieldAnalysisChart from './charts/RentalYieldAnalysisChart';
 
-function RentalDashboard() {
-  const [activeTab, setActiveTab] = useState('vacancy');
+function RentalDashboard({ selectedRegion = 'Peel Region' }) {
+  const [activeTab, setActiveTab] = useState('trends');
 
   // Transform vacancy data
   const vacancyData = vacancyByBedroom2024.map(([type, rate]) => ({
@@ -26,6 +28,8 @@ function RentalDashboard() {
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
   const tabs = [
+    { id: 'trends', label: 'Rental Price Trends', icon: '📈' },
+    { id: 'yield', label: 'Investment Yield Analysis', icon: '💰' },
     { id: 'vacancy', label: 'Vacancy Rates 2024', icon: '📊' },
     { id: 'pbr', label: 'Purpose-Built Units 2024', icon: '🏢' },
     { id: 'condos', label: 'Rented Condos 2024', icon: '🏠' },
@@ -231,6 +235,8 @@ function RentalDashboard() {
 
       {/* Tab Content */}
       <div className="transition-all duration-300">
+        {activeTab === 'trends' && <RentalPriceTrendsChart selectedRegion={selectedRegion} />}
+        {activeTab === 'yield' && <RentalYieldAnalysisChart />}
         {activeTab === 'vacancy' && renderVacancyRates()}
         {activeTab === 'pbr' && renderPurposeBuiltUnits()}
         {activeTab === 'condos' && renderRentedCondos()}

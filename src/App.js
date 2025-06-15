@@ -28,11 +28,11 @@ function App() {
   const renderContent = () => {
     switch (activeView) {
       case 'affordability-thresholds':
-        return <AffordabilityThresholds />;
+        return <AffordabilityThresholds selectedRegion={selectedRegion} />;
       case 'affordability-targets':
         return <AffordabilityTargets />;
       case 'rental':
-        return <RentalDashboard />;
+        return <RentalDashboard selectedRegion={selectedRegion} />;
       case 'ownership':
         return <OwnershipDashboard />;
       default:

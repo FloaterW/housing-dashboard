@@ -3,9 +3,16 @@ import PriceChart from './charts/PriceChart';
 import SalesChart from './charts/SalesChart';
 import InventoryChart from './charts/InventoryChart';
 import MarketTrendsChart from './charts/MarketTrendsChart';
+import HousingTypeDistributionChart from './charts/HousingTypeDistributionChart';
+import PricePerSqFtChart from './charts/PricePerSqFtChart';
+import MarketVelocityChart from './charts/MarketVelocityChart';
+import NewVsResaleChart from './charts/NewVsResaleChart';
+import MarketHealthDashboard from './charts/MarketHealthDashboard';
+import HousingMapDashboard from './charts/HousingMapDashboard';
 import KeyMetrics from './KeyMetrics';
 import EnhancedMetrics from './EnhancedMetrics';
 import RegionalComparison from './RegionalComparison';
+import { getDataForRegionAndType } from '../data/housingData';
 
 function Dashboard({ selectedRegion, selectedHousingType }) {
   return (
@@ -36,6 +43,25 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
             selectedRegion={selectedRegion}
             selectedHousingType={selectedHousingType}
           />
+        </div>
+
+        {/* Housing Type Analysis Section */}
+        <div className="mb-8 animate-slide-up" style={{ animationDelay: '250ms' }}>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Housing Type Analysis</h3>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <HousingTypeDistributionChart selectedRegion={selectedRegion} />
+            <PricePerSqFtChart selectedRegion={selectedRegion} />
+          </div>
+        </div>
+
+        {/* Market Velocity Analysis */}
+        <div className="mb-8 animate-slide-up" style={{ animationDelay: '275ms' }}>
+          <MarketVelocityChart selectedRegion={selectedRegion} />
+        </div>
+
+        {/* New vs Resale Analysis */}
+        <div className="mb-8 animate-slide-up" style={{ animationDelay: '285ms' }}>
+          <NewVsResaleChart selectedRegion={selectedRegion} />
         </div>
 
         {/* Charts Grid */}
@@ -100,6 +126,16 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
           </div>
         </div>
 
+        {/* Market Health Dashboard */}
+        <div className="mb-8 animate-slide-up" style={{ animationDelay: '750ms' }}>
+          <MarketHealthDashboard />
+        </div>
+
+        {/* Geographic Map Analysis */}
+        <div className="mb-8 animate-slide-up" style={{ animationDelay: '775ms' }}>
+          <HousingMapDashboard />
+        </div>
+
         {/* Market Insights with enhanced styling */}
         <div className="animate-slide-up" style={{ animationDelay: '800ms' }}>
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-1">
@@ -153,8 +189,5 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
     </main>
   );
 }
-
-// Import the helper function
-import { getDataForRegionAndType } from '../data/housingData';
 
 export default Dashboard; 

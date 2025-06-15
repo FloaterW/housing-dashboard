@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { affordabilityThresholds2024 } from '../data/affordability';
+import MortgageStressTestChart from './charts/MortgageStressTestChart';
+import AffordabilityGapHeatmap from './charts/AffordabilityGapHeatmap';
+import HomeownershipTrendsChart from './charts/HomeownershipTrendsChart';
 
-function AffordabilityThresholds() {
+function AffordabilityThresholds({ selectedRegion = 'Peel Region' }) {
+  const [activeTab, setActiveTab] = useState('thresholds');
+  
   // Transform data for Recharts
   const chartData = affordabilityThresholds2024.map(([decile, income, housePrice]) => ({
     decile: `D${decile}`,
@@ -37,12 +42,47 @@ function AffordabilityThresholds() {
     return null;
   };
 
+  const tabs = [
+    { id: 'thresholds', label: 'Affordability Thresholds', icon: '📊' },
+    { id: 'stress-test', label: 'Mortgage Stress Test', icon: '🏦' },
+    { id: 'heatmap', label: 'Affordability Gap Heatmap', icon: '🔥' },
+    { id: 'ownership-trends', label: 'Homeownership Trends', icon: '🏠' },
+  ];
+
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Housing Affordability Thresholds 2024</h2>
-        <p className="text-gray-600">Income requirements and maximum affordable house prices by decile</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Housing Affordability Analysis</h2>
+        <p className="text-gray-600">Comprehensive affordability analysis and stress testing</p>
       </div>
+
+      {/* Tabs */}
+      <div className="flex border-b-2 border-gray-200 mb-6">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`
+              flex items-center space-x-2 py-3 px-6 font-medium transition-all duration-300
+              ${activeTab === tab.id 
+                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50' 
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }
+            `}
+          >
+            <span className="text-xl">{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'thresholds' ? (
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="mb-6">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">Income Requirements by Decile</h3>
+            <p className="text-gray-600">Maximum affordable house prices by income decile</p>
+          </div>
 
       <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
@@ -104,6 +144,14 @@ function AffordabilityThresholds() {
           </p>
         </div>
       </div>
+        </div>
+      ) : activeTab === 'stress-test' ? (
+        <MortgageStressTestChart selectedRegion={selectedRegion} />
+      ) : activeTab === 'heatmap' ? (
+        <AffordabilityGapHeatmap />
+      ) : (
+        <HomeownershipTrendsChart />
+      )}
     </div>
   );
 }
