@@ -1,5 +1,6 @@
 import React from 'react';
 import { getDataForRegionAndType } from '../data/housingData';
+import designSystem from '../styles/designSystem';
 
 function KeyMetrics({ selectedRegion, selectedHousingType }) {
   const metrics = getDataForRegionAndType(
@@ -30,7 +31,7 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     const isPositive = value > 0;
     return (
       <span
-        className={`text-sm font-medium flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+        className={`${designSystem.components.metric.change} flex items-center ${isPositive ? designSystem.typography.success : designSystem.typography.danger}`}
       >
         <span className="text-lg mr-1">{isPositive ? '↑' : '↓'}</span>
         {Math.abs(value)}%
@@ -44,32 +45,36 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
       value: formatCurrency(metrics.avgPrice),
       change: metrics.priceChange,
       icon: '💰',
-      bgGradient: 'from-blue-400 to-blue-600',
-      shadowColor: 'shadow-blue-200',
+      bgGradient: designSystem.gradients.primary,
+      shadowColor: designSystem.shadows.card,
+      borderColor: designSystem.colors.primary[500],
     },
     {
       title: 'Total Sales',
       value: metrics.totalSales.toLocaleString(),
       change: metrics.salesChange,
       icon: '📊',
-      bgGradient: 'from-green-400 to-green-600',
-      shadowColor: 'shadow-green-200',
+      bgGradient: designSystem.gradients.success,
+      shadowColor: designSystem.shadows.card,
+      borderColor: designSystem.colors.success[500],
     },
     {
       title: 'Days on Market',
       value: metrics.avgDaysOnMarket,
       change: metrics.daysChange,
       icon: '📅',
-      bgGradient: 'from-yellow-400 to-yellow-600',
-      shadowColor: 'shadow-yellow-200',
+      bgGradient: designSystem.gradients.warning,
+      shadowColor: designSystem.shadows.card,
+      borderColor: designSystem.colors.warning[500],
     },
     {
       title: 'Active Inventory',
       value: metrics.inventory.toLocaleString(),
       change: metrics.inventoryChange,
       icon: '🏠',
-      bgGradient: 'from-purple-400 to-purple-600',
-      shadowColor: 'shadow-purple-200',
+      bgGradient: designSystem.gradients.accent,
+      shadowColor: designSystem.shadows.card,
+      borderColor: designSystem.colors.accent[500],
     },
   ];
 
@@ -77,16 +82,16 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     <div>
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">
+        <h3 className={designSystem.typography.h3}>
           Key Performance Indicators
         </h3>
-        <p className="text-sm text-gray-600">
+        <p className={designSystem.typography.bodySmall}>
           {selectedRegion} - {selectedHousingType}
         </p>
       </div>
 
       <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className={designSystem.layout.gridResponsive4 + ' ' + designSystem.spacing.gridGap}
         role="region"
         aria-label="Key performance metrics"
       >
@@ -94,7 +99,7 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
           <div
             key={index}
             className={`
-            transform transition-all duration-500 hover:scale-105 hover:-translate-y-2
+            ${designSystem.animations.transition} ${designSystem.animations.hoverScale} hover:-translate-y-2
             animate-slide-up
           `}
             style={{ animationDelay: `${index * 100}ms` }}
@@ -103,8 +108,8 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
           >
             <div
               className={`
-            bg-gradient-to-br ${metric.bgGradient} rounded-xl p-6 text-white
-            shadow-xl ${metric.shadowColor} hover:shadow-2xl
+            bg-gradient-to-br ${metric.bgGradient} ${designSystem.borders.radius.medium} ${designSystem.spacing.container} text-white
+            ${metric.shadowColor} hover:shadow-2xl ${designSystem.animations.transition}
             relative overflow-hidden group
           `}
             >

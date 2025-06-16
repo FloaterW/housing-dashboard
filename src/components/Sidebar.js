@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { housingData } from '../data/housingData';
+import designSystem from '../styles/designSystem';
 
 function Sidebar({
   onRegionChange,
@@ -22,11 +23,11 @@ function Sidebar({
   };
 
   return (
-    <aside className="w-full p-6 overflow-y-auto sticky top-0 max-h-screen">
+    <aside className={`w-full ${designSystem.spacing.container} overflow-y-auto sticky top-0 max-h-screen`}>
       <div className="mb-8 animate-slide-up">
         <h3
           id="region-heading"
-          className="text-lg font-bold text-gray-800 mb-4 flex items-center"
+          className={`${designSystem.typography.h4} mb-4 ${designSystem.layout.flexStart}`}
         >
           <span className="mr-2 text-xl" aria-hidden="true">
             📍
@@ -34,7 +35,7 @@ function Sidebar({
           Select Region
         </h3>
         <div
-          className="space-y-2"
+          className={designSystem.spacing.componentGapSmall}
           role="radiogroup"
           aria-labelledby="region-heading"
         >
@@ -46,11 +47,11 @@ function Sidebar({
               aria-checked={selectedRegion === region}
               aria-label={`Select ${region} region`}
               className={`
-                w-full text-left px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                w-full text-left ${designSystem.animations.transition} ${designSystem.animations.hoverScaleSmall} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 ${
                   selectedRegion === region
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                    ? `bg-gradient-to-r ${designSystem.gradients.primary} text-white ${designSystem.shadows.medium} scale-105 px-4 py-3 ${designSystem.borders.radius.small}`
+                    : `${designSystem.components.button.secondary} hover:shadow-md`
                 }
                 animate-slide-up
               `}
@@ -73,7 +74,7 @@ function Sidebar({
       >
         <h3
           id="housing-type-heading"
-          className="text-lg font-bold text-gray-800 mb-4 flex items-center"
+          className={`${designSystem.typography.h4} mb-4 ${designSystem.layout.flexStart}`}
         >
           <span className="mr-2 text-xl" aria-hidden="true">
             🏡
@@ -81,7 +82,7 @@ function Sidebar({
           Housing Type
         </h3>
         <div
-          className="space-y-2"
+          className={designSystem.spacing.componentGapSmall}
           role="radiogroup"
           aria-labelledby="housing-type-heading"
         >
@@ -93,11 +94,11 @@ function Sidebar({
               aria-checked={selectedHousingType === type}
               aria-label={`Select ${type} housing type`}
               className={`
-                w-full text-left px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+                w-full text-left ${designSystem.animations.transition} ${designSystem.animations.hoverScaleSmall} focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
                 ${
                   selectedHousingType === type
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg scale-105'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                    ? `bg-gradient-to-r ${designSystem.gradients.success} text-white ${designSystem.shadows.medium} scale-105 px-4 py-3 ${designSystem.borders.radius.small}`
+                    : `${designSystem.components.button.secondary} hover:shadow-md`
                 }
                 animate-slide-up
               `}

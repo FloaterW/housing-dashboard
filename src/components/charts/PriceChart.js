@@ -7,9 +7,9 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from 'recharts';
 import { getDataForRegionAndType } from '../../data/housingData';
+import ChartWrapper, { chartTheme, getChartProps, ChartActions } from '../common/ChartWrapper';
 
 function PriceChart({ selectedRegion, selectedHousingType }) {
   const data =
@@ -23,9 +23,9 @@ function PriceChart({ selectedRegion, selectedHousingType }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-800">{label}</p>
-          <p className="text-blue-600">
+        <div style={chartTheme.tooltip} className="p-3 rounded-lg">
+          <p className="font-semibold text-white">{label}</p>
+          <p style={{ color: chartTheme.primary }}>
             Price: ${payload[0].value.toLocaleString()}
           </p>
         </div>
@@ -34,34 +34,57 @@ function PriceChart({ selectedRegion, selectedHousingType }) {
     return null;
   };
 
+  const handleExport = () => {
+    console.log('Exporting price chart data...');
+    // Export logic would go here
+  };
+
+  const handleRefresh = () => {
+    console.log('Refreshing price chart data...');
+    // Refresh logic would go here
+  };
+
+  const actions = (
+    <>
+      <ChartActions.RefreshButton onClick={handleRefresh} />
+      <ChartActions.ExportButton onClick={handleExport} />
+    </>
+  );
+
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ChartWrapper
+      title="Housing Price Trends"
+      subtitle={`${selectedRegion} - ${selectedHousingType}`}
+      height={300}
+      actions={actions}
+    >
       <LineChart
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        {...getChartProps('line')}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <CartesianGrid {...chartTheme.grid} />
         <XAxis
           dataKey="month"
-          tick={{ fontSize: 12 }}
+          tick={chartTheme.axis}
           angle={-45}
           textAnchor="end"
           height={60}
         />
-        <YAxis tickFormatter={formatPrice} tick={{ fontSize: 12 }} />
+        <YAxis 
+          tickFormatter={formatPrice} 
+          tick={chartTheme.axis} 
+        />
         <Tooltip content={<CustomTooltip />} />
-        <Legend />
+        <Legend wrapperStyle={chartTheme.legend} />
         <Line
           type="monotone"
           dataKey="price"
-          stroke="#3B82F6"
-          strokeWidth={3}
-          dot={{ fill: '#3B82F6', r: 4 }}
-          activeDot={{ r: 6 }}
+          stroke={chartTheme.primary}
+          {...getChartProps('line')}
           name="Average Price"
         />
       </LineChart>
-    </ResponsiveContainer>
+    </ChartWrapper>
   );
 }
 
