@@ -222,6 +222,29 @@ function Sidebar({
         </button>
       </div>
 
+      {/* AirBnB Analytics Section */}
+      <div
+        className="mb-8 animate-slide-up"
+        style={{ animationDelay: '700ms' }}
+      >
+        <button
+          onClick={() => handleNavigation('airbnb')}
+          className={`
+            w-full text-left px-4 py-3 rounded-lg transition-all duration-300 transform hover:scale-105
+            ${
+              activeView === 'airbnb'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg scale-105'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+            }
+          `}
+        >
+          <div className="flex items-center">
+            <span className="mr-2 text-xl">🏨</span>
+            <span className="font-medium">AirBnB Analytics</span>
+          </div>
+        </button>
+      </div>
+
       {/* Quick Stats */}
       <div
         className="mt-8 p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg animate-slide-up"

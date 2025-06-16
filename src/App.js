@@ -18,6 +18,9 @@ const RentalDashboard = React.lazy(
 const OwnershipDashboard = React.lazy(
   () => import('./components/OwnershipDashboard')
 );
+const AirBnbDashboard = React.lazy(
+  () => import('./components/AirBnbDashboard')
+);
 
 function App() {
   const [selectedRegion, setSelectedRegion] = useState('Peel Region');
@@ -67,6 +70,12 @@ function App() {
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <OwnershipDashboard />
+          </Suspense>
+        );
+      case 'airbnb':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AirBnbDashboard />
           </Suspense>
         );
       default:
