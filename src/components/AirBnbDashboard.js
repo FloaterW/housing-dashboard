@@ -23,6 +23,7 @@ import {
 } from '../data/airbnbData';
 import AirBnbRealScraper from '../utils/airbnbRealScraper';
 import { aprilAnalysisService } from '../data/aprilAnalysisData';
+import designSystem from '../styles/designSystem';
 
 const AirBnbDashboard = () => {
   const [selectedRegion, setSelectedRegion] = useState('Mississauga');
@@ -56,8 +57,8 @@ const AirBnbDashboard = () => {
     item => item.region === selectedRegion
   );
 
-  // Chart colors
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00'];
+  // Chart colors - using design system
+  const colors = designSystem.chartColors.palette;
 
   // Real scraping functionality
   const handleRealScraping = async () => {
@@ -114,18 +115,18 @@ const AirBnbDashboard = () => {
     }
   };
 
-  const MetricCard = ({ title, value, change, icon, color = 'blue' }) => (
+  const MetricCard = ({ title, value, change, icon, color = designSystem.colors.primary[500] }) => (
     <div
-      className="bg-white p-6 rounded-lg shadow-lg border-l-4"
+      className={`${designSystem.components.metric.card} ${designSystem.animations.transition}`}
       style={{ borderLeftColor: color }}
     >
-      <div className="flex items-center justify-between">
+      <div className={designSystem.layout.flexBetween}>
         <div>
-          <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <h3 className={designSystem.components.metric.label}>{title}</h3>
+          <p className={`${designSystem.components.metric.value} text-gray-900`}>{value}</p>
           {change && (
             <p
-              className={`text-sm ${parseFloat(change) >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              className={`${designSystem.components.metric.change} ${parseFloat(change) >= 0 ? designSystem.typography.success : designSystem.typography.danger}`}
             >
               {parseFloat(change) >= 0 ? '↗' : '↘'} {Math.abs(change)}%
             </p>
@@ -139,31 +140,31 @@ const AirBnbDashboard = () => {
   const TabButton = ({ id, label, isActive, onClick }) => (
     <button
       onClick={() => onClick(id)}
-      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+      className={
         isActive
-          ? 'bg-blue-500 text-white'
-          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-      }`}
+          ? designSystem.components.tab.active
+          : designSystem.components.tab.inactive
+      }
     >
       {label}
     </button>
   );
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className={designSystem.spacing.sectionGap.replace('space-y-8', 'mb-8')}>
+        <h1 className={designSystem.typography.h1}>
           AirBnB Market Analytics
         </h1>
-        <p className="text-gray-600">
+        <p className={designSystem.typography.subtitle}>
           Comprehensive analysis of short-term rental market trends and
           opportunities
         </p>
       </div>
 
       {/* Controls */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
+      <div className={`${designSystem.components.card.base} mb-6`}>
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex flex-wrap gap-4 items-center">
             <div>
@@ -173,7 +174,7 @@ const AirBnbDashboard = () => {
               <select
                 value={selectedRegion}
                 onChange={e => setSelectedRegion(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={designSystem.components.input.base}
               >
                 {regions.map(region => (
                   <option key={region} value={region}>
@@ -189,7 +190,7 @@ const AirBnbDashboard = () => {
               <select
                 value={selectedTimeframe}
                 onChange={e => setSelectedTimeframe(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={designSystem.components.input.base}
               >
                 {timeframes.map(tf => (
                   <option key={tf.value} value={tf.value}>
@@ -218,13 +219,13 @@ const AirBnbDashboard = () => {
             <button
               onClick={handleRealScraping}
               disabled={scrapingStatus === 'loading'}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={
                 scrapingStatus === 'loading'
-                  ? 'bg-gray-400 cursor-not-allowed'
+                  ? 'bg-gray-400 cursor-not-allowed px-4 py-2 rounded-lg font-medium'
                   : realScrapingEnabled
-                    ? 'bg-red-500 hover:bg-red-600 text-white'
-                    : 'bg-green-500 hover:bg-green-600 text-white'
-              }`}
+                    ? designSystem.components.button.danger
+                    : designSystem.components.button.success
+              }
             >
               {scrapingStatus === 'loading' ? (
                 <div className="flex items-center gap-2">
@@ -316,21 +317,21 @@ const AirBnbDashboard = () => {
               value={`$${filteredData[filteredData.length - 1]?.averagePrice || 0}`}
               change={airbnbMetrics?.averagePrice?.change}
               icon="🏠"
-              color="#3B82F6"
+              color={designSystem.colors.primary[500]}
             />
             <MetricCard
               title="Total Active Listings"
               value={airbnbMetrics?.totalListings?.toLocaleString() || '0'}
               change={airbnbMetrics?.newListings?.change}
               icon="📊"
-              color="#10B981"
+              color={designSystem.colors.success[500]}
             />
             <MetricCard
               title="Average Occupancy Rate"
               value={`${filteredData[filteredData.length - 1]?.occupancyRate || 0}%`}
               change={airbnbMetrics?.occupancyRate?.change}
               icon="📈"
-              color="#F59E0B"
+              color={designSystem.colors.warning[500]}
             />
             <MetricCard
               title="Average Rating"
@@ -339,7 +340,7 @@ const AirBnbDashboard = () => {
               }
               change={airbnbMetrics?.averageRating?.change}
               icon="⭐"
-              color="#EF4444"
+              color={designSystem.colors.danger[500]}
             />
           </div>
 
@@ -890,19 +891,19 @@ const AirBnbDashboard = () => {
                 onClick={() =>
                   alert('Feature coming soon: Detailed municipality breakdown')
                 }
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                className={designSystem.components.button.primary}
               >
                 View Detailed Analysis
               </button>
               <button
                 onClick={() => alert('Feature coming soon: Export April data')}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className={designSystem.components.button.success}
               >
                 Export April Data
               </button>
               <button
                 onClick={() => alert('Feature coming soon: Generate report')}
-                className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                className={designSystem.components.button.warning}
               >
                 Generate Report
               </button>
