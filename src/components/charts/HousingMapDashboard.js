@@ -71,9 +71,9 @@ function HousingMapDashboard() {
 
   useEffect(() => {
     try {
-      // Create the map
+      // Create the map with fallback basemaps
       const map = new Map({
-        basemap: 'streets-navigation-vector', // Clean, modern basemap
+        basemap: 'osm', // OpenStreetMap - more reliable fallback
       });
 
       // Create the view
