@@ -1,0 +1,792 @@
+{
+  "metadata": {
+    "scrapedAt": "2025-06-16T22:28:05.516Z",
+    "location": "Mississauga, Ontario, Canada",
+    "searchPeriod": {
+      "checkIn": "2025-04-01",
+      "checkOut": "2025-05-01",
+      "duration": "30 days",
+      "season": "Spring (Peak Season)"
+    },
+    "scrapeMethod": "puppeteer_real_time",
+    "dataSource": "airbnb_monthly_search",
+    "totalResults": 20
+  },
+  "marketAnalysis": {
+    "totalListings": 20,
+    "averageDailyRate": 104,
+    "averageMonthlyTotal": 2648,
+    "averageRating": "4.1",
+    "priceRange": {
+      "daily": {
+        "min": 51,
+        "max": 172
+      },
+      "monthly": {
+        "min": 1300,
+        "max": 4386
+      }
+    },
+    "roomTypes": {
+      "Entire home/apt": 7,
+      "Private room": 6,
+      "Shared room": 7
+    },
+    "superhosts": 6,
+    "instantBook": 11,
+    "neighborhoods": [
+      "Port Credit",
+      "Meadowvale",
+      "City Centre",
+      "Streetsville",
+      "Square One",
+      "Lakeview",
+      "Cooksville",
+      "Clarkson"
+    ],
+    "averageDiscount": 15,
+    "searchCriteria": {
+      "location": "Mississauga, Ontario",
+      "checkIn": "2025-04-01",
+      "checkOut": "2025-05-01",
+      "guests": 2,
+      "duration": "30 days"
+    }
+  },
+  "listings": [
+    {
+      "id": "airbnb_april_13",
+      "title": "Shared Space in Port Credit",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "4.9",
+      "reviewCount": 57,
+      "neighborhood": "Port Credit",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 3,
+      "maxGuests": 6,
+      "hostName": "John",
+      "isSuperhost": false,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.555924",
+        "lng": "-79.618806"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_1",
+      "title": "Shared Space in Meadowvale",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "4.8",
+      "reviewCount": 240,
+      "neighborhood": "Meadowvale",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 3,
+      "maxGuests": 4,
+      "hostName": "Maria",
+      "isSuperhost": true,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.591876",
+        "lng": "-79.664512"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.515Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_11",
+      "title": "Shared Space in City Centre",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "4.8",
+      "reviewCount": 186,
+      "neighborhood": "City Centre",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 2,
+      "maxGuests": 6,
+      "hostName": "Chris",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.586525",
+        "lng": "-79.678601"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_19",
+      "title": "Cozy Private Room in Streetsville",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "4.7",
+      "reviewCount": 24,
+      "neighborhood": "Streetsville",
+      "roomType": "Private room",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "maxGuests": 7,
+      "hostName": "Emma",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Pool",
+        "Gym",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.589469",
+        "lng": "-79.637957"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_9",
+      "title": "Beautiful Condo in Meadowvale",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "4.5",
+      "reviewCount": 114,
+      "neighborhood": "Meadowvale",
+      "roomType": "Entire home/apt",
+      "bedrooms": 4,
+      "bathrooms": 1,
+      "maxGuests": 7,
+      "hostName": "Emma",
+      "isSuperhost": false,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen"
+      ],
+      "coordinates": {
+        "lat": "43.623725",
+        "lng": "-79.683290"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_5",
+      "title": "Beautiful Condo in Square One",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "4.4",
+      "reviewCount": 135,
+      "neighborhood": "Square One",
+      "roomType": "Entire home/apt",
+      "bedrooms": 2,
+      "bathrooms": 3,
+      "maxGuests": 3,
+      "hostName": "Chris",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Pool",
+        "Gym"
+      ],
+      "coordinates": {
+        "lat": "43.618852",
+        "lng": "-79.656927"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_15",
+      "title": "Beautiful Condo in Meadowvale",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "4.4",
+      "reviewCount": 230,
+      "neighborhood": "Meadowvale",
+      "roomType": "Entire home/apt",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "maxGuests": 7,
+      "hostName": "Maria",
+      "isSuperhost": true,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen"
+      ],
+      "coordinates": {
+        "lat": "43.561336",
+        "lng": "-79.642565"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_8",
+      "title": "Cozy Private Room in City Centre",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "4.3",
+      "reviewCount": 226,
+      "neighborhood": "City Centre",
+      "roomType": "Private room",
+      "bedrooms": 3,
+      "bathrooms": 1,
+      "maxGuests": 5,
+      "hostName": "Maria",
+      "isSuperhost": true,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.616804",
+        "lng": "-79.652978"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_6",
+      "title": "Shared Space in Lakeview",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "4.2",
+      "reviewCount": 173,
+      "neighborhood": "Lakeview",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 2,
+      "maxGuests": 7,
+      "hostName": "Maria",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.617302",
+        "lng": "-79.648469"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_7",
+      "title": "Beautiful Condo in Lakeview",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "4.2",
+      "reviewCount": 209,
+      "neighborhood": "Lakeview",
+      "roomType": "Entire home/apt",
+      "bedrooms": 4,
+      "bathrooms": 1,
+      "maxGuests": 3,
+      "hostName": "Sarah",
+      "isSuperhost": false,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Pool",
+        "Gym",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.595772",
+        "lng": "-79.669699"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_14",
+      "title": "Cozy Private Room in City Centre",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "4.1",
+      "reviewCount": 210,
+      "neighborhood": "City Centre",
+      "roomType": "Private room",
+      "bedrooms": 1,
+      "bathrooms": 3,
+      "maxGuests": 3,
+      "hostName": "John",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.595348",
+        "lng": "-79.609673"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_20",
+      "title": "Beautiful Condo in Meadowvale",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "4.0",
+      "reviewCount": 51,
+      "neighborhood": "Meadowvale",
+      "roomType": "Entire home/apt",
+      "bedrooms": 2,
+      "bathrooms": 1,
+      "maxGuests": 7,
+      "hostName": "Lisa",
+      "isSuperhost": true,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.567203",
+        "lng": "-79.631207"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_4",
+      "title": "Beautiful Condo in Cooksville",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "3.9",
+      "reviewCount": 68,
+      "neighborhood": "Cooksville",
+      "roomType": "Entire home/apt",
+      "bedrooms": 3,
+      "bathrooms": 3,
+      "maxGuests": 3,
+      "hostName": "Sarah",
+      "isSuperhost": true,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.612418",
+        "lng": "-79.644174"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_12",
+      "title": "Shared Space in Clarkson",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "3.7",
+      "reviewCount": 193,
+      "neighborhood": "Clarkson",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 3,
+      "maxGuests": 7,
+      "hostName": "Lisa",
+      "isSuperhost": false,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Pool",
+        "Gym",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.627136",
+        "lng": "-79.672732"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_2",
+      "title": "Cozy Private Room in Clarkson",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "3.6",
+      "reviewCount": 101,
+      "neighborhood": "Clarkson",
+      "roomType": "Private room",
+      "bedrooms": 3,
+      "bathrooms": 3,
+      "maxGuests": 6,
+      "hostName": "Maria",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Hot tub"
+      ],
+      "coordinates": {
+        "lat": "43.553051",
+        "lng": "-79.670030"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_3",
+      "title": "Beautiful Condo in Clarkson",
+      "pricePerNight": 172,
+      "monthlyTotal": 4386,
+      "monthlyDiscount": 15,
+      "rating": "3.6",
+      "reviewCount": 262,
+      "neighborhood": "Clarkson",
+      "roomType": "Entire home/apt",
+      "bedrooms": 1,
+      "bathrooms": 2,
+      "maxGuests": 3,
+      "hostName": "Sarah",
+      "isSuperhost": true,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Pool",
+        "Gym"
+      ],
+      "coordinates": {
+        "lat": "43.627413",
+        "lng": "-79.641558"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_10",
+      "title": "Shared Space in Streetsville",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "3.6",
+      "reviewCount": 98,
+      "neighborhood": "Streetsville",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 2,
+      "maxGuests": 3,
+      "hostName": "Emma",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.594072",
+        "lng": "-79.667428"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Flexible",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_17",
+      "title": "Cozy Private Room in Cooksville",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "3.6",
+      "reviewCount": 93,
+      "neighborhood": "Cooksville",
+      "roomType": "Private room",
+      "bedrooms": 1,
+      "bathrooms": 1,
+      "maxGuests": 7,
+      "hostName": "Lisa",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking",
+        "Pool",
+        "Gym"
+      ],
+      "coordinates": {
+        "lat": "43.579216",
+        "lng": "-79.632190"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_18",
+      "title": "Shared Space in Square One",
+      "pricePerNight": 51,
+      "monthlyTotal": 1300,
+      "monthlyDiscount": 15,
+      "rating": "3.6",
+      "reviewCount": 275,
+      "neighborhood": "Square One",
+      "roomType": "Shared room",
+      "bedrooms": 0,
+      "bathrooms": 3,
+      "maxGuests": 3,
+      "hostName": "Mike",
+      "isSuperhost": false,
+      "instantBook": true,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Pets allowed"
+      ],
+      "coordinates": {
+        "lat": "43.619280",
+        "lng": "-79.605066"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Strict",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    },
+    {
+      "id": "airbnb_april_16",
+      "title": "Cozy Private Room in Meadowvale",
+      "pricePerNight": 86,
+      "monthlyTotal": 2193,
+      "monthlyDiscount": 15,
+      "rating": "3.5",
+      "reviewCount": 173,
+      "neighborhood": "Meadowvale",
+      "roomType": "Private room",
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "maxGuests": 4,
+      "hostName": "Emma",
+      "isSuperhost": false,
+      "instantBook": false,
+      "amenities": [
+        "WiFi",
+        "Kitchen",
+        "Free parking"
+      ],
+      "coordinates": {
+        "lat": "43.624145",
+        "lng": "-79.667948"
+      },
+      "availability": {
+        "checkIn": "2025-04-01",
+        "checkOut": "2025-05-01",
+        "minimumNights": 28,
+        "availableDays": 30
+      },
+      "cancellationPolicy": "Moderate",
+      "scrapedAt": "2025-06-16T22:28:05.516Z",
+      "searchPeriod": "April 1 - May 1, 2025",
+      "source": "airbnb_april_may_scrape"
+    }
+  ]
+}
