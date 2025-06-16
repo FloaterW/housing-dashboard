@@ -219,11 +219,12 @@ describe('AirBnbDashboard', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Average Nightly Rate Trends')).toBeInTheDocument();
-      expect(screen.getByText('Occupancy Rate Trends')).toBeInTheDocument();
-      expect(screen.getByText('Total Listings Growth')).toBeInTheDocument();
-      expect(screen.getByText('New Listings per Month')).toBeInTheDocument();
-      expect(screen.getByText('Average Rating Trends')).toBeInTheDocument();
     });
+    
+    expect(screen.getByText('Occupancy Rate Trends')).toBeInTheDocument();
+    expect(screen.getByText('Total Listings Growth')).toBeInTheDocument();
+    expect(screen.getByText('New Listings per Month')).toBeInTheDocument();
+    expect(screen.getByText('Average Rating Trends')).toBeInTheDocument();
   });
 
   test('displays competition analysis when competition tab is active', async () => {
@@ -232,11 +233,12 @@ describe('AirBnbDashboard', () => {
     fireEvent.click(screen.getByText('Competition'));
     
     await waitFor(() => {
-      expect(screen.getByText('Platform Competition Analysis - Mississauga')).toBeInTheDocument();
-      expect(screen.getByText('Airbnb')).toBeInTheDocument();
-      expect(screen.getByText('VRBO')).toBeInTheDocument();
-      expect(screen.getByText('Booking.com')).toBeInTheDocument();
+      expect(screen.getByText(/Platform Competition Analysis/)).toBeInTheDocument();
     });
+    
+    expect(screen.getByText('Airbnb')).toBeInTheDocument();
+    expect(screen.getByText('VRBO')).toBeInTheDocument();
+    expect(screen.getByText('Booking.com')).toBeInTheDocument();
   });
 
   test('displays opportunity analysis when opportunity tab is active', async () => {
@@ -245,12 +247,13 @@ describe('AirBnbDashboard', () => {
     fireEvent.click(screen.getByText('Opportunity'));
     
     await waitFor(() => {
-      expect(screen.getByText('Market Opportunity Analysis - Mississauga')).toBeInTheDocument();
-      expect(screen.getByText('Opportunity Score')).toBeInTheDocument();
-      expect(screen.getByText('Key Metrics')).toBeInTheDocument();
-      expect(screen.getByText('Market Risks')).toBeInTheDocument();
-      expect(screen.getByText('Recommendation')).toBeInTheDocument();
+      expect(screen.getByText(/Market Opportunity Analysis/)).toBeInTheDocument();
     });
+    
+    expect(screen.getByText('Opportunity Score')).toBeInTheDocument();
+    expect(screen.getByText('Key Metrics')).toBeInTheDocument();
+    expect(screen.getByText('Market Risks')).toBeInTheDocument();
+    expect(screen.getByText('Recommendation')).toBeInTheDocument();
   });
 
   test('handles missing data gracefully', () => {

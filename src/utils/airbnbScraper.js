@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { format, subDays, isValid } from 'date-fns';
+import { format, subDays } from 'date-fns';
 
 class AirBnbScraper {
   constructor() {
@@ -74,11 +74,10 @@ class AirBnbScraper {
   }
 
   // Main scraping method for search results
-  async scrapeListings(location, checkIn, checkOut, adults = 2, maxPages = 3) {
+  async scrapeListings(location, checkIn, checkOut, adults = 2) {
     try {
       await this.waitForRateLimit();
       
-      const searchParams = this.buildSearchParams(location, checkIn, checkOut, adults);
       console.log(`Scraping AirBnB listings for ${location}...`);
       
       // Note: Direct API calls to AirBnB will be blocked by CORS in browser
@@ -317,7 +316,6 @@ const identifySeasonalPatterns = (data) => {
   const monthlyAverages = {};
   
   data.forEach(d => {
-    const month = new Date(d.date).getMonth();
     const monthName = new Date(d.date).toLocaleString('default', { month: 'long' });
     
     if (!monthlyAverages[monthName]) {

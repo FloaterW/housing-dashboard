@@ -1,8 +1,4 @@
-import AirBnbScraper, { analyzeTrends } from '../utils/airbnbScraper';
 import { format, subMonths, startOfMonth } from 'date-fns';
-
-// Initialize scraper instance
-const scraper = new AirBnbScraper();
 
 // Mock historical data for demonstration
 export const generateAirBnbHistoricalData = () => {

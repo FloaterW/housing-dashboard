@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -21,12 +21,16 @@ import {
   airbnbOpportunityAnalysis,
   estimateAirBnbRevenue
 } from '../data/airbnbData';
+import AirBnbRealScraper from '../utils/airbnbRealScraper';
 
 const AirBnbDashboard = () => {
   const [selectedRegion, setSelectedRegion] = useState('Mississauga');
   const [selectedTimeframe, setSelectedTimeframe] = useState('6');
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [realScrapingEnabled, setRealScrapingEnabled] = useState(false);
+  const [scrapingStatus, setScrapingStatus] = useState('idle'); // idle, loading, success, error
+  const [realListings, setRealListings] = useState([]);
+  const [scrapingError, setScrapingError] = useState(null);
 
   const regions = ['Mississauga', 'Brampton', 'Caledon'];
   const timeframes = [
@@ -46,6 +50,60 @@ const AirBnbDashboard = () => {
 
   // Chart colors
   const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00'];
+
+  // Real scraping functionality
+  const handleRealScraping = async () => {
+    if (!realScrapingEnabled) {
+      setRealScrapingEnabled(true);
+      return;
+    }
+
+    setScrapingStatus('loading');
+    setScrapingError(null);
+
+    try {
+      const scraper = new AirBnbRealScraper();
+      
+      // Test connection first
+      const connectionTest = await scraper.testConnection();
+      if (!connectionTest.success) {
+        setScrapingError(connectionTest.message);
+        setScrapingStatus('error');
+        return;
+      }
+
+      // Generate dates for scraping
+      const checkIn = new Date();
+      checkIn.setDate(checkIn.getDate() + 7); // 1 week from now
+      const checkOut = new Date(checkIn);
+      checkOut.setDate(checkOut.getDate() + 3); // 3 night stay
+
+      const checkInStr = checkIn.toISOString().split('T')[0];
+      const checkOutStr = checkOut.toISOString().split('T')[0];
+
+      console.log(`🔍 Attempting real scraping for ${selectedRegion}...`);
+      const listings = await scraper.scrapeRealListings(
+        selectedRegion + ', Ontario', 
+        checkInStr, 
+        checkOutStr, 
+        2
+      );
+
+      if (listings && listings.length > 0) {
+        setRealListings(listings);
+        setScrapingStatus('success');
+        console.log(`✅ Successfully scraped ${listings.length} listings!`);
+      } else {
+        setScrapingError('No listings found. This is expected due to browser CORS limitations.');
+        setScrapingStatus('error');
+      }
+
+    } catch (error) {
+      console.error('❌ Real scraping failed:', error);
+      setScrapingError(error.message);
+      setScrapingStatus('error');
+    }
+  };
 
   const MetricCard = ({ title, value, change, icon, color = 'blue' }) => (
     <div className="bg-white p-6 rounded-lg shadow-lg border-l-4" style={{ borderLeftColor: color }}>
@@ -91,36 +149,100 @@ const AirBnbDashboard = () => {
 
       {/* Controls */}
       <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Region
-            </label>
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {regions.map(region => (
-                <option key={region} value={region}>{region}</option>
-              ))}
-            </select>
+        <div className="flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-4 items-center">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Region
+              </label>
+              <select
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {regions.map(region => (
+                  <option key={region} value={region}>{region}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Time Period
+              </label>
+              <select
+                value={selectedTimeframe}
+                onChange={(e) => setSelectedTimeframe(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {timeframes.map(tf => (
+                  <option key={tf.value} value={tf.value}>{tf.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Time Period
-            </label>
-            <select
-              value={selectedTimeframe}
-              onChange={(e) => setSelectedTimeframe(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          
+          {/* Real Scraping Controls */}
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Real-time Data</p>
+              <p className="text-xs text-gray-400">
+                {scrapingStatus === 'loading' ? 'Scraping...' : 
+                 scrapingStatus === 'success' ? `${realListings.length} listings` :
+                 scrapingStatus === 'error' ? 'Failed' : 'Mock data'}
+              </p>
+            </div>
+            
+            <button
+              onClick={handleRealScraping}
+              disabled={scrapingStatus === 'loading'}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                scrapingStatus === 'loading' 
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : realScrapingEnabled
+                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    : 'bg-green-500 hover:bg-green-600 text-white'
+              }`}
             >
-              {timeframes.map(tf => (
-                <option key={tf.value} value={tf.value}>{tf.label}</option>
-              ))}
-            </select>
+              {scrapingStatus === 'loading' ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  Scraping...
+                </div>
+              ) : realScrapingEnabled ? (
+                'Scrape Live Data'
+              ) : (
+                'Try Real Scraping'
+              )}
+            </button>
           </div>
         </div>
+        
+        {/* Real Scraping Status */}
+        {scrapingError && (
+          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <span className="text-red-500">⚠️</span>
+              <div>
+                <p className="text-sm font-medium text-red-800">Scraping Limited</p>
+                <p className="text-xs text-red-600 mt-1">{scrapingError}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  💡 For real scraping, use the Node.js backend script: <code>node airbnb-scraper-backend.js</code>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {scrapingStatus === 'success' && realListings.length > 0 && (
+          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-green-500">✅</span>
+              <p className="text-sm font-medium text-green-800">
+                Successfully scraped {realListings.length} real listings from AirBnB!
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tab Navigation */}
