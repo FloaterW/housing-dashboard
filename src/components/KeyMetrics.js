@@ -2,7 +2,11 @@ import React from 'react';
 import { getDataForRegionAndType } from '../data/housingData';
 
 function KeyMetrics({ selectedRegion, selectedHousingType }) {
-  const metrics = getDataForRegionAndType('keyMetrics', selectedRegion, selectedHousingType) || {
+  const metrics = getDataForRegionAndType(
+    'keyMetrics',
+    selectedRegion,
+    selectedHousingType
+  ) || {
     avgPrice: 1245000,
     priceChange: 5.2,
     totalSales: 1400,
@@ -13,7 +17,7 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     inventoryChange: -8.3,
   };
 
-  const formatCurrency = (value) => {
+  const formatCurrency = value => {
     return new Intl.NumberFormat('en-CA', {
       style: 'currency',
       currency: 'CAD',
@@ -22,16 +26,17 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     }).format(value);
   };
 
-  const formatChange = (value) => {
+  const formatChange = value => {
     const isPositive = value > 0;
     return (
-      <span className={`text-sm font-medium flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+      <span
+        className={`text-sm font-medium flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}
+      >
         <span className="text-lg mr-1">{isPositive ? '↑' : '↓'}</span>
         {Math.abs(value)}%
       </span>
     );
   };
-
 
   const metricCards = [
     {
@@ -72,51 +77,70 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     <div>
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">Key Performance Indicators</h3>
-        <p className="text-sm text-gray-600">{selectedRegion} - {selectedHousingType}</p>
+        <h3 className="text-xl font-semibold text-gray-800">
+          Key Performance Indicators
+        </h3>
+        <p className="text-sm text-gray-600">
+          {selectedRegion} - {selectedHousingType}
+        </p>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {metricCards.map((metric, index) => (
-        <div
-          key={index}
-          className={`
+
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        role="region"
+        aria-label="Key performance metrics"
+      >
+        {metricCards.map((metric, index) => (
+          <div
+            key={index}
+            className={`
             transform transition-all duration-500 hover:scale-105 hover:-translate-y-2
             animate-slide-up
           `}
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
-          <div className={`
+            style={{ animationDelay: `${index * 100}ms` }}
+            role="article"
+            aria-labelledby={`metric-${index}-title`}
+          >
+            <div
+              className={`
             bg-gradient-to-br ${metric.bgGradient} rounded-xl p-6 text-white
             shadow-xl ${metric.shadowColor} hover:shadow-2xl
             relative overflow-hidden group
-          `}>
-            {/* Animated background effect */}
-            <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-            
-            {/* Content */}
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white/90 font-medium text-sm uppercase tracking-wider">{metric.title}</h3>
-                <span className="text-3xl animate-pulse">{metric.icon}</span>
-              </div>
-              <div className="space-y-2">
-                <p className="text-3xl font-bold">{metric.value}</p>
-                <div className="flex items-center justify-between">
-                  {formatChange(metric.change)}
-                  <span className="text-xs text-white/70">vs last month</span>
+          `}
+            >
+              {/* Animated background effect */}
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <h3
+                    id={`metric-${index}-title`}
+                    className="text-white/90 font-medium text-sm uppercase tracking-wider"
+                  >
+                    {metric.title}
+                  </h3>
+                  <span className="text-3xl animate-pulse" aria-hidden="true">
+                    {metric.icon}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-3xl font-bold">{metric.value}</p>
+                  <div className="flex items-center justify-between">
+                    {formatChange(metric.change)}
+                    <span className="text-xs text-white/70">vs last month</span>
+                  </div>
                 </div>
               </div>
+
+              {/* Decorative element */}
+              <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
             </div>
-            
-            {/* Decorative element */}
-            <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
           </div>
-        </div>
-      ))}
+        ))}
       </div>
     </div>
   );
 }
 
-export default KeyMetrics; 
+export default React.memo(KeyMetrics);

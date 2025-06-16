@@ -1,11 +1,22 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { getDataForRegionAndType } from '../../data/housingData';
 
 function PriceChart({ selectedRegion, selectedHousingType }) {
-  const data = getDataForRegionAndType('priceData', selectedRegion, selectedHousingType) || [];
+  const data =
+    getDataForRegionAndType('priceData', selectedRegion, selectedHousingType) ||
+    [];
 
-  const formatPrice = (value) => {
+  const formatPrice = value => {
     return `$${(value / 1000000).toFixed(2)}M`;
   };
 
@@ -25,25 +36,25 @@ function PriceChart({ selectedRegion, selectedHousingType }) {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <LineChart
+        data={data}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+      >
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis 
-          dataKey="month" 
+        <XAxis
+          dataKey="month"
           tick={{ fontSize: 12 }}
           angle={-45}
           textAnchor="end"
           height={60}
         />
-        <YAxis 
-          tickFormatter={formatPrice}
-          tick={{ fontSize: 12 }}
-        />
+        <YAxis tickFormatter={formatPrice} tick={{ fontSize: 12 }} />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Line 
-          type="monotone" 
-          dataKey="price" 
-          stroke="#3B82F6" 
+        <Line
+          type="monotone"
+          dataKey="price"
+          stroke="#3B82F6"
           strokeWidth={3}
           dot={{ fill: '#3B82F6', r: 4 }}
           activeDot={{ r: 6 }}
@@ -54,4 +65,4 @@ function PriceChart({ selectedRegion, selectedHousingType }) {
   );
 }
 
-export default PriceChart; 
+export default React.memo(PriceChart);

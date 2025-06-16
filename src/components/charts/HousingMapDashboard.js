@@ -3,7 +3,6 @@ import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
-import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import PopupTemplate from '@arcgis/core/PopupTemplate';
 import '@arcgis/core/assets/esri/themes/light/main.css';
@@ -19,13 +18,13 @@ function HousingMapDashboard() {
   const housingGeoData = [
     {
       municipality: 'Mississauga',
-      geometry: [-79.6441, 43.5890], // [longitude, latitude]
+      geometry: [-79.6441, 43.589], // [longitude, latitude]
       avgPrice: 1350000,
       priceGrowth: 11.9,
       affordabilityRate: 45.2,
       riskScore: 85,
       marketTemp: 82,
-      inventory: 1.8
+      inventory: 1.8,
     },
     {
       municipality: 'Brampton',
@@ -35,7 +34,7 @@ function HousingMapDashboard() {
       affordabilityRate: 58.3,
       riskScore: 74,
       marketTemp: 74,
-      inventory: 2.3
+      inventory: 2.3,
     },
     {
       municipality: 'Caledon',
@@ -45,7 +44,7 @@ function HousingMapDashboard() {
       affordabilityRate: 28.1,
       riskScore: 68,
       marketTemp: 68,
-      inventory: 3.2
+      inventory: 3.2,
     },
     // Additional neighborhoods for better heatmap
     {
@@ -56,7 +55,7 @@ function HousingMapDashboard() {
       affordabilityRate: 32.1,
       riskScore: 78,
       marketTemp: 79,
-      inventory: 1.5
+      inventory: 1.5,
     },
     {
       municipality: 'Milton',
@@ -66,15 +65,15 @@ function HousingMapDashboard() {
       affordabilityRate: 41.8,
       riskScore: 76,
       marketTemp: 81,
-      inventory: 2.1
-    }
+      inventory: 2.1,
+    },
   ];
 
   useEffect(() => {
     try {
       // Create the map
       const map = new Map({
-        basemap: 'streets-navigation-vector' // Clean, modern basemap
+        basemap: 'streets-navigation-vector', // Clean, modern basemap
       });
 
       // Create the view
@@ -87,46 +86,55 @@ function HousingMapDashboard() {
           dockEnabled: true,
           dockOptions: {
             position: 'top-right',
-            breakpoint: false
-          }
-        }
+            breakpoint: false,
+          },
+        },
       });
 
       // Create graphics layer for housing data
       const housingLayer = new GraphicsLayer({
-        title: 'Housing Market Data'
+        title: 'Housing Market Data',
       });
 
       // Function to get symbol based on selected metric
-      const getSymbol = (data) => {
+      const getSymbol = data => {
         let color, size;
-        
-        switch(selectedMetric) {
+
+        switch (selectedMetric) {
           case 'avgPrice':
             // Color based on price: green (lower) to red (higher)
             const priceRatio = data.avgPrice / 1650000; // Normalize to max price
-            color = priceRatio > 0.8 ? [220, 38, 127] : // High price - red
-                   priceRatio > 0.7 ? [251, 146, 60] : // Medium-high - orange  
-                   [34, 197, 94]; // Lower price - green
+            color =
+              priceRatio > 0.8
+                ? [220, 38, 127] // High price - red
+                : priceRatio > 0.7
+                  ? [251, 146, 60] // Medium-high - orange
+                  : [34, 197, 94]; // Lower price - green
             size = Math.max(20, data.avgPrice / 50000); // Size based on price
             break;
-            
+
           case 'riskScore':
             // Color based on risk: green (low) to red (high)
-            color = data.riskScore > 80 ? [220, 38, 127] : // High risk - red
-                   data.riskScore > 70 ? [251, 146, 60] : // Medium risk - orange
-                   [34, 197, 94]; // Low risk - green
+            color =
+              data.riskScore > 80
+                ? [220, 38, 127] // High risk - red
+                : data.riskScore > 70
+                  ? [251, 146, 60] // Medium risk - orange
+                  : [34, 197, 94]; // Low risk - green
             size = Math.max(15, data.riskScore / 3);
             break;
-            
+
           case 'marketTemp':
             // Color based on temperature
-            color = data.marketTemp > 80 ? [220, 38, 127] : // Very hot - red
-                   data.marketTemp > 70 ? [251, 146, 60] : // Hot - orange
-                   [34, 197, 94]; // Warm/cool - green
+            color =
+              data.marketTemp > 80
+                ? [220, 38, 127] // Very hot - red
+                : data.marketTemp > 70
+                  ? [251, 146, 60] // Hot - orange
+                  : [34, 197, 94]; // Warm/cool - green
             size = Math.max(15, data.marketTemp / 3);
             break;
-            
+
           default:
             color = [59, 130, 246]; // Default blue
             size = 25;
@@ -137,11 +145,10 @@ function HousingMapDashboard() {
           size: size,
           outline: {
             color: [255, 255, 255],
-            width: 2
-          }
+            width: 2,
+          },
         });
       };
-
 
       // Function to create heatmap points
       const createHeatmapLayer = () => {
@@ -150,16 +157,16 @@ function HousingMapDashboard() {
         // Create multiple points for better heatmap effect
         housingGeoData.forEach(data => {
           const intensity = getHeatmapIntensity(data);
-          
+
           // Create multiple points around the main point for density
           for (let i = 0; i < intensity; i++) {
             const offsetLat = (Math.random() - 0.5) * 0.02; // Small random offset
             const offsetLng = (Math.random() - 0.5) * 0.02;
-            
+
             const point = {
               type: 'point',
               longitude: data.geometry[0] + offsetLng,
-              latitude: data.geometry[1] + offsetLat
+              latitude: data.geometry[1] + offsetLat,
             };
 
             const symbol = new SimpleMarkerSymbol({
@@ -167,14 +174,14 @@ function HousingMapDashboard() {
               size: 8,
               outline: {
                 color: [255, 255, 255, 0],
-                width: 0
-              }
+                width: 0,
+              },
             });
 
             const graphic = new Graphic({
               geometry: point,
               symbol: symbol,
-              attributes: data
+              attributes: data,
             });
 
             housingLayer.add(graphic);
@@ -183,10 +190,10 @@ function HousingMapDashboard() {
       };
 
       // Function to get heatmap intensity
-      const getHeatmapIntensity = (data) => {
+      const getHeatmapIntensity = data => {
         let value;
-        
-        switch(selectedMetric) {
+
+        switch (selectedMetric) {
           case 'avgPrice':
             value = Math.round(data.avgPrice / 100000); // Scale down price
             break;
@@ -202,7 +209,7 @@ function HousingMapDashboard() {
           default:
             value = Math.round(data.avgPrice / 100000);
         }
-        
+
         return Math.max(5, Math.min(25, value)); // Between 5 and 25 points
       };
 
@@ -215,15 +222,15 @@ function HousingMapDashboard() {
           housingLayer.removeAll();
 
           housingGeoData.forEach(data => {
-          const point = {
-            type: 'point',
-            longitude: data.geometry[0],
-            latitude: data.geometry[1]
-          };
+            const point = {
+              type: 'point',
+              longitude: data.geometry[0],
+              latitude: data.geometry[1],
+            };
 
-          const popupTemplate = new PopupTemplate({
-            title: '{municipality} Housing Market',
-            content: `
+            const popupTemplate = new PopupTemplate({
+              title: '{municipality} Housing Market',
+              content: `
               <div style="padding: 10px;">
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr><td><strong>Average Price:</strong></td><td>$${data.avgPrice.toLocaleString()}</td></tr>
@@ -235,32 +242,32 @@ function HousingMapDashboard() {
                 </table>
               </div>
             `,
-            fieldInfos: [
-              {
-                fieldName: 'municipality',
-                visible: false
-              }
-            ]
-          });
+              fieldInfos: [
+                {
+                  fieldName: 'municipality',
+                  visible: false,
+                },
+              ],
+            });
 
-          const graphic = new Graphic({
-            geometry: point,
-            symbol: getSymbol(data),
-            attributes: data,
-            popupTemplate: popupTemplate
-          });
+            const graphic = new Graphic({
+              geometry: point,
+              symbol: getSymbol(data),
+              attributes: data,
+              popupTemplate: popupTemplate,
+            });
 
-          housingLayer.add(graphic);
-        });
+            housingLayer.add(graphic);
+          });
         }
       };
 
       // Add layer to map
       map.add(housingLayer);
-      
+
       // Initial graphics update
       updateMapGraphics();
-      
+
       // Store view reference
       setMapView(view);
       setIsLoading(false);
@@ -289,7 +296,7 @@ function HousingMapDashboard() {
     { id: 'avgPrice', label: 'Average Prices', icon: '💰' },
     { id: 'riskScore', label: 'Risk Levels', icon: '⚠️' },
     { id: 'marketTemp', label: 'Market Temperature', icon: '🌡️' },
-    { id: 'affordabilityRate', label: 'Affordability', icon: '🏠' }
+    { id: 'affordabilityRate', label: 'Affordability', icon: '🏠' },
   ];
 
   return (
@@ -303,26 +310,30 @@ function HousingMapDashboard() {
               Geographic Housing Market Analysis
             </h3>
             <p className="text-sm text-gray-600">
-              Interactive map visualization of housing market trends across Peel Region
+              Interactive map visualization of housing market trends across Peel
+              Region
             </p>
           </div>
         </div>
-        
+
         {/* Controls Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           {/* Metric Selection */}
           <div className="flex-1">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Select Metric</h4>
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+              Select Metric
+            </h4>
             <div className="flex flex-wrap gap-4">
-              {metrics.map((metric) => (
+              {metrics.map(metric => (
                 <button
                   key={metric.id}
                   onClick={() => setSelectedMetric(metric.id)}
                   className={`
                     px-5 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 shadow-sm min-w-[140px]
-                    ${selectedMetric === metric.id
-                      ? 'bg-blue-600 text-white shadow-md transform scale-105'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md border border-gray-200'
+                    ${
+                      selectedMetric === metric.id
+                        ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md border border-gray-200'
                     }
                   `}
                 >
@@ -332,18 +343,21 @@ function HousingMapDashboard() {
               ))}
             </div>
           </div>
-          
+
           {/* Map Type Toggle */}
           <div className="flex-shrink-0">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">Visualization Type</h4>
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+              Visualization Type
+            </h4>
             <div className="flex bg-gray-200 rounded-xl p-2 shadow-sm">
               <button
                 onClick={() => setMapType('markers')}
                 className={`
                   px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 min-w-[120px] justify-center
-                  ${mapType === 'markers'
-                    ? 'bg-blue-600 text-white shadow-md transform scale-105'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  ${
+                    mapType === 'markers'
+                      ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                   }
                 `}
               >
@@ -354,9 +368,10 @@ function HousingMapDashboard() {
                 onClick={() => setMapType('heatmap')}
                 className={`
                   px-6 py-3 text-sm font-medium rounded-lg transition-all duration-300 flex items-center space-x-3 min-w-[120px] justify-center
-                  ${mapType === 'heatmap'
-                    ? 'bg-orange-600 text-white shadow-md transform scale-105'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                  ${
+                    mapType === 'heatmap'
+                      ? 'bg-orange-600 text-white shadow-md transform scale-105'
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                   }
                 `}
               >
@@ -378,9 +393,9 @@ function HousingMapDashboard() {
             </div>
           </div>
         )}
-        
-        <div 
-          ref={mapRef} 
+
+        <div
+          ref={mapRef}
           className="w-full h-96 rounded-lg border border-gray-200"
           style={{ minHeight: '400px' }}
         />
@@ -393,30 +408,57 @@ function HousingMapDashboard() {
           <div className="space-y-2 text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-              <span>Low {selectedMetric === 'avgPrice' ? 'Price' : selectedMetric === 'riskScore' ? 'Risk' : 'Temperature'}</span>
+              <span>
+                Low{' '}
+                {selectedMetric === 'avgPrice'
+                  ? 'Price'
+                  : selectedMetric === 'riskScore'
+                    ? 'Risk'
+                    : 'Temperature'}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 bg-orange-500 rounded-full"></div>
-              <span>Medium {selectedMetric === 'avgPrice' ? 'Price' : selectedMetric === 'riskScore' ? 'Risk' : 'Temperature'}</span>
+              <span>
+                Medium{' '}
+                {selectedMetric === 'avgPrice'
+                  ? 'Price'
+                  : selectedMetric === 'riskScore'
+                    ? 'Risk'
+                    : 'Temperature'}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-              <span>High {selectedMetric === 'avgPrice' ? 'Price' : selectedMetric === 'riskScore' ? 'Risk' : 'Temperature'}</span>
+              <span>
+                High{' '}
+                {selectedMetric === 'avgPrice'
+                  ? 'Price'
+                  : selectedMetric === 'riskScore'
+                    ? 'Risk'
+                    : 'Temperature'}
+              </span>
             </div>
           </div>
         </div>
-        
+
         <div className="bg-blue-50 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-800 mb-2">Geographic Insights</h4>
+          <h4 className="font-semibold text-blue-800 mb-2">
+            Geographic Insights
+          </h4>
           <p className="text-sm text-blue-600">
-            Click on any municipality marker to view detailed housing market metrics and trends for that area.
+            Click on any municipality marker to view detailed housing market
+            metrics and trends for that area.
           </p>
         </div>
-        
+
         <div className="bg-green-50 rounded-lg p-4">
-          <h4 className="font-semibold text-green-800 mb-2">Data Visualization</h4>
+          <h4 className="font-semibold text-green-800 mb-2">
+            Data Visualization
+          </h4>
           <p className="text-sm text-green-600">
-            Marker size and color represent the intensity of the selected metric. Larger, redder markers indicate higher values.
+            Marker size and color represent the intensity of the selected
+            metric. Larger, redder markers indicate higher values.
           </p>
         </div>
       </div>
@@ -424,4 +466,4 @@ function HousingMapDashboard() {
   );
 }
 
-export default HousingMapDashboard;
+export default React.memo(HousingMapDashboard);
