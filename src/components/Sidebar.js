@@ -23,7 +23,9 @@ function Sidebar({
   };
 
   return (
-    <aside className={`w-full ${designSystem.spacing.container} overflow-y-auto sticky top-0 max-h-screen`}>
+    <aside
+      className={`w-full ${designSystem.spacing.container} overflow-y-auto sticky top-0 max-h-screen`}
+    >
       <div className="mb-8 animate-slide-up">
         <h3
           id="region-heading"
@@ -42,7 +44,10 @@ function Sidebar({
           {housingData.regions.map((region, index) => (
             <button
               key={region}
-              onClick={() => onRegionChange(region)}
+              onClick={() => {
+                onRegionChange(region);
+                handleNavigation('dashboard');
+              }}
               role="radio"
               aria-checked={selectedRegion === region}
               aria-label={`Select ${region} region`}
@@ -89,7 +94,10 @@ function Sidebar({
           {housingData.housingTypes.map((type, index) => (
             <button
               key={type}
-              onClick={() => onHousingTypeChange(type)}
+              onClick={() => {
+                onHousingTypeChange(type);
+                handleNavigation('dashboard');
+              }}
               role="radio"
               aria-checked={selectedHousingType === type}
               aria-label={`Select ${type} housing type`}
