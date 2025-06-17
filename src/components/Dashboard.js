@@ -18,19 +18,69 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
   const handleMasterExport = () => {
     // Get comprehensive housing geo data for export
     const housingGeoData = [
-      { municipality: 'Mississauga', geometry: [-79.6441, 43.5890], avgPrice: 1350000, priceGrowth: 11.9, affordabilityRate: 45.2, riskScore: 85, marketTemp: 82, inventory: 1.8 },
-      { municipality: 'Brampton', geometry: [-79.7624, 43.7315], avgPrice: 1150000, priceGrowth: 10.2, affordabilityRate: 58.3, riskScore: 74, marketTemp: 74, inventory: 2.3 },
-      { municipality: 'Caledon', geometry: [-79.8711, 43.8554], avgPrice: 1650000, priceGrowth: 7.6, affordabilityRate: 28.1, riskScore: 68, marketTemp: 68, inventory: 3.2 },
-      { municipality: 'Oakville', geometry: [-79.6876, 43.4675], avgPrice: 1750000, priceGrowth: 9.8, affordabilityRate: 32.1, riskScore: 78, marketTemp: 79, inventory: 1.5 },
-      { municipality: 'Milton', geometry: [-79.8774, 43.5183], avgPrice: 1450000, priceGrowth: 12.1, affordabilityRate: 41.8, riskScore: 76, marketTemp: 81, inventory: 2.1 }
+      {
+        municipality: 'Mississauga',
+        geometry: [-79.6441, 43.589],
+        avgPrice: 1350000,
+        priceGrowth: 11.9,
+        affordabilityRate: 45.2,
+        riskScore: 85,
+        marketTemp: 82,
+        inventory: 1.8,
+      },
+      {
+        municipality: 'Brampton',
+        geometry: [-79.7624, 43.7315],
+        avgPrice: 1150000,
+        priceGrowth: 10.2,
+        affordabilityRate: 58.3,
+        riskScore: 74,
+        marketTemp: 74,
+        inventory: 2.3,
+      },
+      {
+        municipality: 'Caledon',
+        geometry: [-79.8711, 43.8554],
+        avgPrice: 1650000,
+        priceGrowth: 7.6,
+        affordabilityRate: 28.1,
+        riskScore: 68,
+        marketTemp: 68,
+        inventory: 3.2,
+      },
+      {
+        municipality: 'Oakville',
+        geometry: [-79.6876, 43.4675],
+        avgPrice: 1750000,
+        priceGrowth: 9.8,
+        affordabilityRate: 32.1,
+        riskScore: 78,
+        marketTemp: 79,
+        inventory: 1.5,
+      },
+      {
+        municipality: 'Milton',
+        geometry: [-79.8774, 43.5183],
+        avgPrice: 1450000,
+        priceGrowth: 12.1,
+        affordabilityRate: 41.8,
+        riskScore: 76,
+        marketTemp: 81,
+        inventory: 2.1,
+      },
     ];
-    
+
     // Call the enhanced export function
-    exportAllDashboardData(selectedRegion, selectedHousingType, housingGeoData, null);
+    exportAllDashboardData(
+      selectedRegion,
+      selectedHousingType,
+      housingGeoData,
+      null
+    );
   };
 
   return (
-    <main className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100 overflow-y-auto">
+    <main className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100 overflow-y-auto overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
         {/* Animated Header Section */}
         <div className="mb-8 animate-fade-in">
@@ -43,7 +93,7 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
                 Real-time housing market analytics and trends for February 2025
               </p>
             </div>
-            
+
             {/* Master Export Button */}
             <div className="flex-shrink-0">
               <button
@@ -58,38 +108,65 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
         </div>
 
         {/* Key Metrics with staggered animation */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '100ms' }}>
-          <KeyMetrics 
-            selectedRegion={selectedRegion} 
-            selectedHousingType={selectedHousingType} 
-          />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '100ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <KeyMetrics
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
+          </div>
         </div>
 
         {/* Enhanced Metrics with tabs */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '200ms' }}>
-          <EnhancedMetrics
-            selectedRegion={selectedRegion}
-            selectedHousingType={selectedHousingType}
-          />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '200ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <EnhancedMetrics
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
+          </div>
         </div>
 
         {/* Housing Type Analysis Section */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '250ms' }}>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Housing Type Analysis</h3>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <HousingTypeDistributionChart selectedRegion={selectedRegion} />
-            <PricePerSqFtChart selectedRegion={selectedRegion} />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '250ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <h3 className="text-xl font-semibold text-gray-800 mb-6">
+              Housing Type Analysis
+            </h3>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <HousingTypeDistributionChart selectedRegion={selectedRegion} />
+              <PricePerSqFtChart selectedRegion={selectedRegion} />
+            </div>
           </div>
         </div>
 
         {/* Market Velocity Analysis */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '275ms' }}>
-          <MarketVelocityChart selectedRegion={selectedRegion} />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '275ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <MarketVelocityChart selectedRegion={selectedRegion} />
+          </div>
         </div>
 
         {/* New vs Resale Analysis */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '285ms' }}>
-          <NewVsResaleChart selectedRegion={selectedRegion} />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '285ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <NewVsResaleChart selectedRegion={selectedRegion} />
+          </div>
         </div>
 
         {/* Charts Grid */}
@@ -101,9 +178,9 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
                 <span className="mr-2">📈</span>
                 Average Price Trends
               </h3>
-              <PriceChart 
-                selectedRegion={selectedRegion} 
-                selectedHousingType={selectedHousingType} 
+              <PriceChart
+                selectedRegion={selectedRegion}
+                selectedHousingType={selectedHousingType}
               />
             </div>
           </div>
@@ -115,84 +192,121 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
                 <span className="mr-2">📊</span>
                 Monthly Sales Volume
               </h3>
-              <SalesChart 
-                selectedRegion={selectedRegion} 
-                selectedHousingType={selectedHousingType} 
+              <SalesChart
+                selectedRegion={selectedRegion}
+                selectedHousingType={selectedHousingType}
               />
             </div>
           </div>
         </div>
 
         {/* Market Trends Chart */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '500ms' }}>
-          <MarketTrendsChart
-            selectedRegion={selectedRegion}
-            selectedHousingType={selectedHousingType}
-          />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '500ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <MarketTrendsChart
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
+          </div>
         </div>
 
         {/* Regional Comparison */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '600ms' }}>
-          <RegionalComparison
-            selectedHousingType={selectedHousingType}
-          />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '600ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <RegionalComparison selectedHousingType={selectedHousingType} />
+          </div>
         </div>
 
-
         {/* Market Health Dashboard */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '700ms' }}>
-          <MarketHealthDashboard />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '700ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <MarketHealthDashboard />
+          </div>
         </div>
 
         {/* Geographic Map Analysis */}
-        <div className="mb-8 animate-slide-up" style={{ animationDelay: '725ms' }}>
-          <HousingMapDashboard />
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '725ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <HousingMapDashboard />
+          </div>
         </div>
 
         {/* Market Insights with enhanced styling */}
-        <div className="animate-slide-up" style={{ animationDelay: '750ms' }}>
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-1">
-            <div className="bg-white rounded-lg p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                <span className="mr-2">💡</span>
-                Market Insights & Recommendations
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="text-3xl animate-bounce">📈</span>
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1">Price Trend Analysis</h4>
-                    <p className="text-sm text-gray-600">
-                      {selectedRegion} shows strong price appreciation with {selectedHousingType} properties leading the market growth
-                    </p>
-                  </div>
+        <div
+          className="mb-8 animate-slide-up"
+          style={{ animationDelay: '750ms' }}
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+            <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+              <span className="mr-2">💡</span>
+              Market Insights & Recommendations
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-start space-x-4 p-4 bg-blue-50 rounded-lg transform transition-all duration-300 hover:scale-105">
+                <span className="text-3xl animate-bounce">📈</span>
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-1">
+                    Price Trend Analysis
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    {selectedRegion} shows strong price appreciation with{' '}
+                    {selectedHousingType} properties leading the market growth
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4 p-4 bg-green-50 rounded-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="text-3xl animate-pulse">🏘️</span>
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1">Market Activity</h4>
-                    <p className="text-sm text-gray-600">
-                      High buyer demand with limited inventory creating competitive bidding situations
-                    </p>
-                  </div>
+              </div>
+              <div className="flex items-start space-x-4 p-4 bg-green-50 rounded-lg transform transition-all duration-300 hover:scale-105">
+                <span className="text-3xl animate-pulse">🏘️</span>
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-1">
+                    Market Activity
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    High buyer demand with limited inventory creating
+                    competitive bidding situations
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4 p-4 bg-yellow-50 rounded-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="text-3xl animate-spin-slow">⏱️</span>
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1">Speed of Sales</h4>
-                    <p className="text-sm text-gray-600">
-                      Properties selling {Math.abs(getDataForRegionAndType('keyMetrics', selectedRegion, selectedHousingType)?.daysChange || 2.5)}% faster than last month
-                    </p>
-                  </div>
+              </div>
+              <div className="flex items-start space-x-4 p-4 bg-yellow-50 rounded-lg transform transition-all duration-300 hover:scale-105">
+                <span className="text-3xl animate-spin-slow">⏱️</span>
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-1">
+                    Speed of Sales
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Properties selling{' '}
+                    {Math.abs(
+                      getDataForRegionAndType(
+                        'keyMetrics',
+                        selectedRegion,
+                        selectedHousingType
+                      )?.daysChange || 2.5
+                    )}
+                    % faster than last month
+                  </p>
                 </div>
-                <div className="flex items-start space-x-4 p-4 bg-purple-50 rounded-lg transform transition-all duration-300 hover:scale-105">
-                  <span className="text-3xl animate-wiggle">🎯</span>
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-1">Strategic Recommendation</h4>
-                    <p className="text-sm text-gray-600">
-                      Optimal time for sellers to list. Buyers should act quickly with pre-approved financing
-                    </p>
-                  </div>
+              </div>
+              <div className="flex items-start space-x-4 p-4 bg-purple-50 rounded-lg transform transition-all duration-300 hover:scale-105">
+                <span className="text-3xl animate-wiggle">🎯</span>
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-1">
+                    Strategic Recommendation
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Optimal time for sellers to list. Buyers should act quickly
+                    with pre-approved financing
+                  </p>
                 </div>
               </div>
             </div>
@@ -203,4 +317,4 @@ function Dashboard({ selectedRegion, selectedHousingType }) {
   );
 }
 
-export default Dashboard; 
+export default Dashboard;

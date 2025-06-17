@@ -300,7 +300,7 @@ function HousingMapDashboard() {
   ];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div>
       <div className="space-y-6 mb-8">
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">

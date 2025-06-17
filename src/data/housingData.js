@@ -1,120 +1,302 @@
 // Housing market data for different regions
 export const housingData = {
   regions: ['Peel Region', 'Mississauga', 'Brampton', 'Caledon'],
-  housingTypes: ['All Types', 'Detached', 'Semi-Detached', 'Townhouse', 'Condo'],
+  housingTypes: [
+    'All Types',
+    'Detached',
+    'Semi-Detached',
+    'Townhouse',
+    'Condo',
+  ],
 
   // Housing type distribution data (market share)
   housingTypeDistribution: {
     'Peel Region': [
       { type: 'Detached', count: 245000, percentage: 45.2, avgPrice: 1710000 },
-      { type: 'Semi-Detached', count: 98000, percentage: 18.1, avgPrice: 1080000 },
+      {
+        type: 'Semi-Detached',
+        count: 98000,
+        percentage: 18.1,
+        avgPrice: 1080000,
+      },
       { type: 'Townhouse', count: 125000, percentage: 23.1, avgPrice: 980000 },
-      { type: 'Condo', count: 74000, percentage: 13.6, avgPrice: 715000 }
+      { type: 'Condo', count: 74000, percentage: 13.6, avgPrice: 715000 },
     ],
-    'Mississauga': [
+    Mississauga: [
       { type: 'Detached', count: 85000, percentage: 38.2, avgPrice: 1850000 },
-      { type: 'Semi-Detached', count: 35000, percentage: 15.7, avgPrice: 1180000 },
+      {
+        type: 'Semi-Detached',
+        count: 35000,
+        percentage: 15.7,
+        avgPrice: 1180000,
+      },
       { type: 'Townhouse', count: 52000, percentage: 23.4, avgPrice: 1050000 },
-      { type: 'Condo', count: 50000, percentage: 22.5, avgPrice: 780000 }
+      { type: 'Condo', count: 50000, percentage: 22.5, avgPrice: 780000 },
     ],
-    'Brampton': [
+    Brampton: [
       { type: 'Detached', count: 135000, percentage: 52.1, avgPrice: 1620000 },
-      { type: 'Semi-Detached', count: 48000, percentage: 18.5, avgPrice: 1020000 },
+      {
+        type: 'Semi-Detached',
+        count: 48000,
+        percentage: 18.5,
+        avgPrice: 1020000,
+      },
       { type: 'Townhouse', count: 58000, percentage: 22.4, avgPrice: 920000 },
-      { type: 'Condo', count: 18000, percentage: 7.0, avgPrice: 650000 }
+      { type: 'Condo', count: 18000, percentage: 7.0, avgPrice: 650000 },
     ],
-    'Caledon': [
+    Caledon: [
       { type: 'Detached', count: 25000, percentage: 75.8, avgPrice: 1950000 },
-      { type: 'Semi-Detached', count: 3000, percentage: 9.1, avgPrice: 1250000 },
+      {
+        type: 'Semi-Detached',
+        count: 3000,
+        percentage: 9.1,
+        avgPrice: 1250000,
+      },
       { type: 'Townhouse', count: 4500, percentage: 13.6, avgPrice: 1150000 },
-      { type: 'Condo', count: 500, percentage: 1.5, avgPrice: 850000 }
-    ]
+      { type: 'Condo', count: 500, percentage: 1.5, avgPrice: 850000 },
+    ],
   },
 
   // Price per square foot data
   pricePerSqFt: {
     'Peel Region': [
       { type: 'Detached', pricePerSqFt: 685, avgSqFt: 2495 },
-      { type: 'Semi-Detached', pricePerSqFt: 720, avgSqFt: 1500 },
+      { type: 'Semi', pricePerSqFt: 720, avgSqFt: 1500 },
       { type: 'Townhouse', pricePerSqFt: 735, avgSqFt: 1333 },
-      { type: 'Condo', pricePerSqFt: 895, avgSqFt: 799 }
+      { type: 'Condo', pricePerSqFt: 895, avgSqFt: 799 },
     ],
-    'Mississauga': [
+    Mississauga: [
       { type: 'Detached', pricePerSqFt: 742, avgSqFt: 2495 },
-      { type: 'Semi-Detached', pricePerSqFt: 787, avgSqFt: 1500 },
+      { type: 'Semi', pricePerSqFt: 787, avgSqFt: 1500 },
       { type: 'Townhouse', pricePerSqFt: 788, avgSqFt: 1333 },
-      { type: 'Condo', pricePerSqFt: 976, avgSqFt: 799 }
+      { type: 'Condo', pricePerSqFt: 976, avgSqFt: 799 },
     ],
-    'Brampton': [
+    Brampton: [
       { type: 'Detached', pricePerSqFt: 649, avgSqFt: 2495 },
-      { type: 'Semi-Detached', pricePerSqFt: 680, avgSqFt: 1500 },
+      { type: 'Semi', pricePerSqFt: 680, avgSqFt: 1500 },
       { type: 'Townhouse', pricePerSqFt: 690, avgSqFt: 1333 },
-      { type: 'Condo', pricePerSqFt: 813, avgSqFt: 799 }
+      { type: 'Condo', pricePerSqFt: 813, avgSqFt: 799 },
     ],
-    'Caledon': [
+    Caledon: [
       { type: 'Detached', pricePerSqFt: 782, avgSqFt: 2495 },
-      { type: 'Semi-Detached', pricePerSqFt: 833, avgSqFt: 1500 },
+      { type: 'Semi', pricePerSqFt: 833, avgSqFt: 1500 },
       { type: 'Townhouse', pricePerSqFt: 863, avgSqFt: 1333 },
-      { type: 'Condo', pricePerSqFt: 1064, avgSqFt: 799 }
-    ]
+      { type: 'Condo', pricePerSqFt: 1064, avgSqFt: 799 },
+    ],
   },
 
   // Market velocity data (days on market)
   marketVelocity: {
     'Peel Region': [
-      { type: 'Detached', daysOnMarket: 28, avgPrice: 1710000, salesVolume: 1250 },
-      { type: 'Semi-Detached', daysOnMarket: 22, avgPrice: 1080000, salesVolume: 485 },
-      { type: 'Townhouse', daysOnMarket: 19, avgPrice: 980000, salesVolume: 685 },
-      { type: 'Condo', daysOnMarket: 15, avgPrice: 715000, salesVolume: 425 }
+      {
+        type: 'Detached',
+        daysOnMarket: 28,
+        avgPrice: 1710000,
+        salesVolume: 1250,
+      },
+      {
+        type: 'Semi-Detached',
+        daysOnMarket: 22,
+        avgPrice: 1080000,
+        salesVolume: 485,
+      },
+      {
+        type: 'Townhouse',
+        daysOnMarket: 19,
+        avgPrice: 980000,
+        salesVolume: 685,
+      },
+      { type: 'Condo', daysOnMarket: 15, avgPrice: 715000, salesVolume: 425 },
     ],
-    'Mississauga': [
-      { type: 'Detached', daysOnMarket: 32, avgPrice: 1850000, salesVolume: 420 },
-      { type: 'Semi-Detached', daysOnMarket: 25, avgPrice: 1180000, salesVolume: 175 },
-      { type: 'Townhouse', daysOnMarket: 21, avgPrice: 1050000, salesVolume: 285 },
-      { type: 'Condo', daysOnMarket: 16, avgPrice: 780000, salesVolume: 285 }
+    Mississauga: [
+      {
+        type: 'Detached',
+        daysOnMarket: 32,
+        avgPrice: 1850000,
+        salesVolume: 420,
+      },
+      {
+        type: 'Semi-Detached',
+        daysOnMarket: 25,
+        avgPrice: 1180000,
+        salesVolume: 175,
+      },
+      {
+        type: 'Townhouse',
+        daysOnMarket: 21,
+        avgPrice: 1050000,
+        salesVolume: 285,
+      },
+      { type: 'Condo', daysOnMarket: 16, avgPrice: 780000, salesVolume: 285 },
     ],
-    'Brampton': [
-      { type: 'Detached', daysOnMarket: 25, avgPrice: 1620000, salesVolume: 685 },
-      { type: 'Semi-Detached', daysOnMarket: 20, avgPrice: 1020000, salesVolume: 245 },
-      { type: 'Townhouse', daysOnMarket: 18, avgPrice: 920000, salesVolume: 325 },
-      { type: 'Condo', daysOnMarket: 14, avgPrice: 650000, salesVolume: 105 }
+    Brampton: [
+      {
+        type: 'Detached',
+        daysOnMarket: 25,
+        avgPrice: 1620000,
+        salesVolume: 685,
+      },
+      {
+        type: 'Semi-Detached',
+        daysOnMarket: 20,
+        avgPrice: 1020000,
+        salesVolume: 245,
+      },
+      {
+        type: 'Townhouse',
+        daysOnMarket: 18,
+        avgPrice: 920000,
+        salesVolume: 325,
+      },
+      { type: 'Condo', daysOnMarket: 14, avgPrice: 650000, salesVolume: 105 },
     ],
-    'Caledon': [
-      { type: 'Detached', daysOnMarket: 35, avgPrice: 1950000, salesVolume: 145 },
-      { type: 'Semi-Detached', daysOnMarket: 28, avgPrice: 1250000, salesVolume: 65 },
-      { type: 'Townhouse', daysOnMarket: 24, avgPrice: 1150000, salesVolume: 75 },
-      { type: 'Condo', daysOnMarket: 18, avgPrice: 850000, salesVolume: 35 }
-    ]
+    Caledon: [
+      {
+        type: 'Detached',
+        daysOnMarket: 35,
+        avgPrice: 1950000,
+        salesVolume: 145,
+      },
+      {
+        type: 'Semi-Detached',
+        daysOnMarket: 28,
+        avgPrice: 1250000,
+        salesVolume: 65,
+      },
+      {
+        type: 'Townhouse',
+        daysOnMarket: 24,
+        avgPrice: 1150000,
+        salesVolume: 75,
+      },
+      { type: 'Condo', daysOnMarket: 18, avgPrice: 850000, salesVolume: 35 },
+    ],
   },
 
   // New vs Resale data
   newVsResale: {
     'Peel Region': [
-      { type: 'Detached', newUnits: 125, resaleUnits: 1125, newAvgPrice: 1850000, resaleAvgPrice: 1690000 },
-      { type: 'Semi-Detached', newUnits: 85, resaleUnits: 400, newAvgPrice: 1180000, resaleAvgPrice: 1060000 },
-      { type: 'Townhouse', newUnits: 245, resaleUnits: 440, newAvgPrice: 1050000, resaleAvgPrice: 965000 },
-      { type: 'Condo', newUnits: 185, resaleUnits: 240, newAvgPrice: 785000, resaleAvgPrice: 695000 }
+      {
+        type: 'Detached',
+        newUnits: 125,
+        resaleUnits: 1125,
+        newAvgPrice: 1850000,
+        resaleAvgPrice: 1690000,
+      },
+      {
+        type: 'Semi-Detached',
+        newUnits: 85,
+        resaleUnits: 400,
+        newAvgPrice: 1180000,
+        resaleAvgPrice: 1060000,
+      },
+      {
+        type: 'Townhouse',
+        newUnits: 245,
+        resaleUnits: 440,
+        newAvgPrice: 1050000,
+        resaleAvgPrice: 965000,
+      },
+      {
+        type: 'Condo',
+        newUnits: 185,
+        resaleUnits: 240,
+        newAvgPrice: 785000,
+        resaleAvgPrice: 695000,
+      },
     ],
-    'Mississauga': [
-      { type: 'Detached', newUnits: 35, resaleUnits: 385, newAvgPrice: 2050000, resaleAvgPrice: 1820000 },
-      { type: 'Semi-Detached', newUnits: 25, resaleUnits: 150, newAvgPrice: 1280000, resaleAvgPrice: 1160000 },
-      { type: 'Townhouse', newUnits: 85, resaleUnits: 200, newAvgPrice: 1150000, resaleAvgPrice: 1020000 },
-      { type: 'Condo', newUnits: 125, resaleUnits: 160, newAvgPrice: 825000, resaleAvgPrice: 755000 }
+    Mississauga: [
+      {
+        type: 'Detached',
+        newUnits: 35,
+        resaleUnits: 385,
+        newAvgPrice: 2050000,
+        resaleAvgPrice: 1820000,
+      },
+      {
+        type: 'Semi-Detached',
+        newUnits: 25,
+        resaleUnits: 150,
+        newAvgPrice: 1280000,
+        resaleAvgPrice: 1160000,
+      },
+      {
+        type: 'Townhouse',
+        newUnits: 85,
+        resaleUnits: 200,
+        newAvgPrice: 1150000,
+        resaleAvgPrice: 1020000,
+      },
+      {
+        type: 'Condo',
+        newUnits: 125,
+        resaleUnits: 160,
+        newAvgPrice: 825000,
+        resaleAvgPrice: 755000,
+      },
     ],
-    'Brampton': [
-      { type: 'Detached', newUnits: 75, resaleUnits: 610, newAvgPrice: 1720000, resaleAvgPrice: 1600000 },
-      { type: 'Semi-Detached', newUnits: 45, resaleUnits: 200, newAvgPrice: 1120000, resaleAvgPrice: 1000000 },
-      { type: 'Townhouse', newUnits: 125, resaleUnits: 200, newAvgPrice: 980000, resaleAvgPrice: 905000 },
-      { type: 'Condo', newUnits: 45, resaleUnits: 60, newAvgPrice: 715000, resaleAvgPrice: 635000 }
+    Brampton: [
+      {
+        type: 'Detached',
+        newUnits: 75,
+        resaleUnits: 610,
+        newAvgPrice: 1720000,
+        resaleAvgPrice: 1600000,
+      },
+      {
+        type: 'Semi-Detached',
+        newUnits: 45,
+        resaleUnits: 200,
+        newAvgPrice: 1120000,
+        resaleAvgPrice: 1000000,
+      },
+      {
+        type: 'Townhouse',
+        newUnits: 125,
+        resaleUnits: 200,
+        newAvgPrice: 980000,
+        resaleAvgPrice: 905000,
+      },
+      {
+        type: 'Condo',
+        newUnits: 45,
+        resaleUnits: 60,
+        newAvgPrice: 715000,
+        resaleAvgPrice: 635000,
+      },
     ],
-    'Caledon': [
-      { type: 'Detached', newUnits: 15, resaleUnits: 130, newAvgPrice: 2150000, resaleAvgPrice: 1925000 },
-      { type: 'Semi-Detached', newUnits: 15, resaleUnits: 50, newAvgPrice: 1350000, resaleAvgPrice: 1225000 },
-      { type: 'Townhouse', newUnits: 35, resaleUnits: 40, newAvgPrice: 1250000, resaleAvgPrice: 1125000 },
-      { type: 'Condo', newUnits: 15, resaleUnits: 20, newAvgPrice: 950000, resaleAvgPrice: 825000 }
-    ]
+    Caledon: [
+      {
+        type: 'Detached',
+        newUnits: 15,
+        resaleUnits: 130,
+        newAvgPrice: 2150000,
+        resaleAvgPrice: 1925000,
+      },
+      {
+        type: 'Semi-Detached',
+        newUnits: 15,
+        resaleUnits: 50,
+        newAvgPrice: 1350000,
+        resaleAvgPrice: 1225000,
+      },
+      {
+        type: 'Townhouse',
+        newUnits: 35,
+        resaleUnits: 40,
+        newAvgPrice: 1250000,
+        resaleAvgPrice: 1125000,
+      },
+      {
+        type: 'Condo',
+        newUnits: 15,
+        resaleUnits: 20,
+        newAvgPrice: 950000,
+        resaleAvgPrice: 825000,
+      },
+    ],
   },
-  
+
   // Price trends data
   priceData: {
     'Peel Region': {
@@ -134,7 +316,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1230000 },
         { month: 'Feb 2025', price: 1245000 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', price: 1450000 },
         { month: 'Feb 2024', price: 1470000 },
         { month: 'Mar 2024', price: 1490000 },
@@ -166,7 +348,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1070000 },
         { month: 'Feb 2025', price: 1080000 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', price: 850000 },
         { month: 'Feb 2024', price: 860000 },
         { month: 'Mar 2024', price: 870000 },
@@ -182,7 +364,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 970000 },
         { month: 'Feb 2025', price: 980000 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', price: 650000 },
         { month: 'Feb 2024', price: 655000 },
         { month: 'Mar 2024', price: 660000 },
@@ -199,7 +381,7 @@ export const housingData = {
         { month: 'Feb 2025', price: 715000 },
       ],
     },
-    'Mississauga': {
+    Mississauga: {
       'All Types': [
         { month: 'Jan 2024', price: 1100000 },
         { month: 'Feb 2024', price: 1115000 },
@@ -216,7 +398,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1280000 },
         { month: 'Feb 2025', price: 1295000 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', price: 1500000 },
         { month: 'Feb 2024', price: 1520000 },
         { month: 'Mar 2024', price: 1540000 },
@@ -248,7 +430,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1120000 },
         { month: 'Feb 2025', price: 1130000 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', price: 900000 },
         { month: 'Feb 2024', price: 910000 },
         { month: 'Mar 2024', price: 920000 },
@@ -264,7 +446,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1020000 },
         { month: 'Feb 2025', price: 1030000 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', price: 700000 },
         { month: 'Feb 2024', price: 705000 },
         { month: 'Mar 2024', price: 710000 },
@@ -281,7 +463,7 @@ export const housingData = {
         { month: 'Feb 2025', price: 765000 },
       ],
     },
-    'Brampton': {
+    Brampton: {
       'All Types': [
         { month: 'Jan 2024', price: 1000000 },
         { month: 'Feb 2024', price: 1015000 },
@@ -298,7 +480,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1180000 },
         { month: 'Feb 2025', price: 1195000 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', price: 1400000 },
         { month: 'Feb 2024', price: 1415000 },
         { month: 'Mar 2024', price: 1430000 },
@@ -330,7 +512,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1020000 },
         { month: 'Feb 2025', price: 1030000 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', price: 800000 },
         { month: 'Feb 2024', price: 810000 },
         { month: 'Mar 2024', price: 820000 },
@@ -346,7 +528,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 920000 },
         { month: 'Feb 2025', price: 930000 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', price: 600000 },
         { month: 'Feb 2024', price: 605000 },
         { month: 'Mar 2024', price: 610000 },
@@ -363,7 +545,7 @@ export const housingData = {
         { month: 'Feb 2025', price: 665000 },
       ],
     },
-    'Caledon': {
+    Caledon: {
       'All Types': [
         { month: 'Jan 2024', price: 1200000 },
         { month: 'Feb 2024', price: 1220000 },
@@ -380,7 +562,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1440000 },
         { month: 'Feb 2025', price: 1460000 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', price: 1600000 },
         { month: 'Feb 2024', price: 1620000 },
         { month: 'Mar 2024', price: 1640000 },
@@ -412,7 +594,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1220000 },
         { month: 'Feb 2025', price: 1230000 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', price: 950000 },
         { month: 'Feb 2024', price: 960000 },
         { month: 'Mar 2024', price: 970000 },
@@ -428,7 +610,7 @@ export const housingData = {
         { month: 'Jan 2025', price: 1070000 },
         { month: 'Feb 2025', price: 1080000 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', price: 750000 },
         { month: 'Feb 2024', price: 755000 },
         { month: 'Mar 2024', price: 760000 },
@@ -446,7 +628,7 @@ export const housingData = {
       ],
     },
   },
-  
+
   // Sales data
   salesData: {
     'Peel Region': {
@@ -466,7 +648,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 1250 },
         { month: 'Feb 2025', sales: 1400 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', sales: 400 },
         { month: 'Feb 2024', sales: 450 },
         { month: 'Mar 2024', sales: 500 },
@@ -498,7 +680,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 310 },
         { month: 'Feb 2025', sales: 350 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', sales: 250 },
         { month: 'Feb 2024', sales: 280 },
         { month: 'Mar 2024', sales: 310 },
@@ -514,7 +696,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 260 },
         { month: 'Feb 2025', sales: 290 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', sales: 250 },
         { month: 'Feb 2024', sales: 280 },
         { month: 'Mar 2024', sales: 310 },
@@ -531,7 +713,7 @@ export const housingData = {
         { month: 'Feb 2025', sales: 290 },
       ],
     },
-    'Mississauga': {
+    Mississauga: {
       'All Types': [
         { month: 'Jan 2024', sales: 600 },
         { month: 'Feb 2024', sales: 680 },
@@ -548,7 +730,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 630 },
         { month: 'Feb 2025', sales: 700 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', sales: 180 },
         { month: 'Feb 2024', sales: 200 },
         { month: 'Mar 2024', sales: 220 },
@@ -580,7 +762,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 155 },
         { month: 'Feb 2025', sales: 175 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', sales: 120 },
         { month: 'Feb 2024', sales: 140 },
         { month: 'Mar 2024', sales: 155 },
@@ -596,7 +778,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 130 },
         { month: 'Feb 2025', sales: 145 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', sales: 150 },
         { month: 'Feb 2024', sales: 170 },
         { month: 'Mar 2024', sales: 185 },
@@ -613,7 +795,7 @@ export const housingData = {
         { month: 'Feb 2025', sales: 170 },
       ],
     },
-    'Brampton': {
+    Brampton: {
       'All Types': [
         { month: 'Jan 2024', sales: 500 },
         { month: 'Feb 2024', sales: 560 },
@@ -630,7 +812,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 520 },
         { month: 'Feb 2025', sales: 580 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', sales: 180 },
         { month: 'Feb 2024', sales: 200 },
         { month: 'Mar 2024', sales: 220 },
@@ -662,7 +844,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 135 },
         { month: 'Feb 2025', sales: 150 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', sales: 110 },
         { month: 'Feb 2024', sales: 125 },
         { month: 'Mar 2024', sales: 140 },
@@ -678,7 +860,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 115 },
         { month: 'Feb 2025', sales: 130 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', sales: 80 },
         { month: 'Feb 2024', sales: 90 },
         { month: 'Mar 2024', sales: 100 },
@@ -695,7 +877,7 @@ export const housingData = {
         { month: 'Feb 2025', sales: 90 },
       ],
     },
-    'Caledon': {
+    Caledon: {
       'All Types': [
         { month: 'Jan 2024', sales: 100 },
         { month: 'Feb 2024', sales: 110 },
@@ -712,7 +894,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 100 },
         { month: 'Feb 2025', sales: 120 },
       ],
-      'Detached': [
+      Detached: [
         { month: 'Jan 2024', sales: 60 },
         { month: 'Feb 2024', sales: 65 },
         { month: 'Mar 2024', sales: 75 },
@@ -744,7 +926,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 20 },
         { month: 'Feb 2025', sales: 24 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { month: 'Jan 2024', sales: 15 },
         { month: 'Feb 2024', sales: 17 },
         { month: 'Mar 2024', sales: 20 },
@@ -760,7 +942,7 @@ export const housingData = {
         { month: 'Jan 2025', sales: 15 },
         { month: 'Feb 2025', sales: 18 },
       ],
-      'Condo': [
+      Condo: [
         { month: 'Jan 2024', sales: 5 },
         { month: 'Feb 2024', sales: 6 },
         { month: 'Mar 2024', sales: 7 },
@@ -778,7 +960,7 @@ export const housingData = {
       ],
     },
   },
-  
+
   // Inventory data
   inventoryData: {
     'Peel Region': {
@@ -788,7 +970,7 @@ export const housingData = {
         { type: 'Sold', count: 800 },
         { type: 'Expired', count: 200 },
       ],
-      'Detached': [
+      Detached: [
         { type: 'Active Listings', count: 1200 },
         { type: 'New Listings', count: 400 },
         { type: 'Sold', count: 280 },
@@ -800,27 +982,27 @@ export const housingData = {
         { type: 'Sold', count: 200 },
         { type: 'Expired', count: 50 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { type: 'Active Listings', count: 800 },
         { type: 'New Listings', count: 280 },
         { type: 'Sold', count: 180 },
         { type: 'Expired', count: 45 },
       ],
-      'Condo': [
+      Condo: [
         { type: 'Active Listings', count: 600 },
         { type: 'New Listings', count: 220 },
         { type: 'Sold', count: 140 },
         { type: 'Expired', count: 35 },
       ],
     },
-    'Mississauga': {
+    Mississauga: {
       'All Types': [
         { type: 'Active Listings', count: 1800 },
         { type: 'New Listings', count: 600 },
         { type: 'Sold', count: 400 },
         { type: 'Expired', count: 100 },
       ],
-      'Detached': [
+      Detached: [
         { type: 'Active Listings', count: 500 },
         { type: 'New Listings', count: 170 },
         { type: 'Sold', count: 120 },
@@ -832,27 +1014,27 @@ export const housingData = {
         { type: 'Sold', count: 100 },
         { type: 'Expired', count: 25 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { type: 'Active Listings', count: 400 },
         { type: 'New Listings', count: 140 },
         { type: 'Sold', count: 90 },
         { type: 'Expired', count: 22 },
       ],
-      'Condo': [
+      Condo: [
         { type: 'Active Listings', count: 450 },
         { type: 'New Listings', count: 140 },
         { type: 'Sold', count: 90 },
         { type: 'Expired', count: 23 },
       ],
     },
-    'Brampton': {
+    Brampton: {
       'All Types': [
         { type: 'Active Listings', count: 1400 },
         { type: 'New Listings', count: 500 },
         { type: 'Sold', count: 350 },
         { type: 'Expired', count: 80 },
       ],
-      'Detached': [
+      Detached: [
         { type: 'Active Listings', count: 500 },
         { type: 'New Listings', count: 180 },
         { type: 'Sold', count: 130 },
@@ -864,27 +1046,27 @@ export const housingData = {
         { type: 'Sold', count: 100 },
         { type: 'Expired', count: 22 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { type: 'Active Listings', count: 350 },
         { type: 'New Listings', count: 120 },
         { type: 'Sold', count: 85 },
         { type: 'Expired', count: 20 },
       ],
-      'Condo': [
+      Condo: [
         { type: 'Active Listings', count: 150 },
         { type: 'New Listings', count: 60 },
         { type: 'Sold', count: 35 },
         { type: 'Expired', count: 8 },
       ],
     },
-    'Caledon': {
+    Caledon: {
       'All Types': [
         { type: 'Active Listings', count: 300 },
         { type: 'New Listings', count: 100 },
         { type: 'Sold', count: 50 },
         { type: 'Expired', count: 20 },
       ],
-      'Detached': [
+      Detached: [
         { type: 'Active Listings', count: 180 },
         { type: 'New Listings', count: 60 },
         { type: 'Sold', count: 30 },
@@ -896,13 +1078,13 @@ export const housingData = {
         { type: 'Sold', count: 10 },
         { type: 'Expired', count: 4 },
       ],
-      'Townhouse': [
+      Townhouse: [
         { type: 'Active Listings', count: 50 },
         { type: 'New Listings', count: 15 },
         { type: 'Sold', count: 8 },
         { type: 'Expired', count: 3 },
       ],
-      'Condo': [
+      Condo: [
         { type: 'Active Listings', count: 10 },
         { type: 'New Listings', count: 5 },
         { type: 'Sold', count: 2 },
@@ -910,7 +1092,7 @@ export const housingData = {
       ],
     },
   },
-  
+
   // Key metrics
   keyMetrics: {
     'Peel Region': {
@@ -924,7 +1106,7 @@ export const housingData = {
         inventory: 3500,
         inventoryChange: -8.3,
       },
-      'Detached': {
+      Detached: {
         avgPrice: 1710000,
         priceChange: 4.8,
         totalSales: 470,
@@ -944,7 +1126,7 @@ export const housingData = {
         inventory: 900,
         inventoryChange: -8.0,
       },
-      'Townhouse': {
+      Townhouse: {
         avgPrice: 980000,
         priceChange: 5.8,
         totalSales: 290,
@@ -954,7 +1136,7 @@ export const housingData = {
         inventory: 800,
         inventoryChange: -8.8,
       },
-      'Condo': {
+      Condo: {
         avgPrice: 715000,
         priceChange: 6.2,
         totalSales: 290,
@@ -965,7 +1147,7 @@ export const housingData = {
         inventoryChange: -9.5,
       },
     },
-    'Mississauga': {
+    Mississauga: {
       'All Types': {
         avgPrice: 1295000,
         priceChange: 4.8,
@@ -976,7 +1158,7 @@ export const housingData = {
         inventory: 1800,
         inventoryChange: -7.5,
       },
-      'Detached': {
+      Detached: {
         avgPrice: 1760000,
         priceChange: 4.5,
         totalSales: 210,
@@ -996,7 +1178,7 @@ export const housingData = {
         inventory: 450,
         inventoryChange: -7.2,
       },
-      'Townhouse': {
+      Townhouse: {
         avgPrice: 1030000,
         priceChange: 5.3,
         totalSales: 145,
@@ -1006,7 +1188,7 @@ export const housingData = {
         inventory: 400,
         inventoryChange: -8.0,
       },
-      'Condo': {
+      Condo: {
         avgPrice: 765000,
         priceChange: 5.8,
         totalSales: 170,
@@ -1017,7 +1199,7 @@ export const housingData = {
         inventoryChange: -8.5,
       },
     },
-    'Brampton': {
+    Brampton: {
       'All Types': {
         avgPrice: 1195000,
         priceChange: 5.5,
@@ -1028,7 +1210,7 @@ export const housingData = {
         inventory: 1400,
         inventoryChange: -9.1,
       },
-      'Detached': {
+      Detached: {
         avgPrice: 1595000,
         priceChange: 5.2,
         totalSales: 210,
@@ -1048,7 +1230,7 @@ export const housingData = {
         inventory: 400,
         inventoryChange: -9.0,
       },
-      'Townhouse': {
+      Townhouse: {
         avgPrice: 930000,
         priceChange: 6.0,
         totalSales: 130,
@@ -1058,7 +1240,7 @@ export const housingData = {
         inventory: 350,
         inventoryChange: -9.5,
       },
-      'Condo': {
+      Condo: {
         avgPrice: 665000,
         priceChange: 6.5,
         totalSales: 90,
@@ -1069,7 +1251,7 @@ export const housingData = {
         inventoryChange: -10.0,
       },
     },
-    'Caledon': {
+    Caledon: {
       'All Types': {
         avgPrice: 1460000,
         priceChange: 6.1,
@@ -1080,7 +1262,7 @@ export const housingData = {
         inventory: 300,
         inventoryChange: -10.2,
       },
-      'Detached': {
+      Detached: {
         avgPrice: 1860000,
         priceChange: 5.8,
         totalSales: 70,
@@ -1100,7 +1282,7 @@ export const housingData = {
         inventory: 60,
         inventoryChange: -10.0,
       },
-      'Townhouse': {
+      Townhouse: {
         avgPrice: 1080000,
         priceChange: 6.5,
         totalSales: 18,
@@ -1110,7 +1292,7 @@ export const housingData = {
         inventory: 50,
         inventoryChange: -10.5,
       },
-      'Condo': {
+      Condo: {
         avgPrice: 815000,
         priceChange: 7.0,
         totalSales: 8,
@@ -1128,78 +1310,90 @@ export const housingData = {
 export const getDataForRegionAndType = (dataType, region, housingType) => {
   const data = housingData[dataType];
   if (!data) return null;
-  
+
   const regionData = data[region] || data['Peel Region'];
   if (!regionData) return null;
-  
+
   return regionData[housingType] || regionData['All Types'] || null;
 };
 
 // Enhanced market data function
 export const getEnhancedMarketData = (region, housingType) => {
-  const baseMetrics = getDataForRegionAndType('keyMetrics', region, housingType) || housingData.keyMetrics['Peel Region']['All Types'];
-  
+  const baseMetrics =
+    getDataForRegionAndType('keyMetrics', region, housingType) ||
+    housingData.keyMetrics['Peel Region']['All Types'];
+
   // Calculate additional metrics with housing type variations
-  const typeMultiplier = housingType === 'Detached' ? 1.2 : 
-                        housingType === 'Semi-Detached' ? 1.0 :
-                        housingType === 'Townhouse' ? 0.9 :
-                        housingType === 'Condo' ? 0.7 : 1.0;
-  
+  const typeMultiplier =
+    housingType === 'Detached'
+      ? 1.2
+      : housingType === 'Semi-Detached'
+        ? 1.0
+        : housingType === 'Townhouse'
+          ? 0.9
+          : housingType === 'Condo'
+            ? 0.7
+            : 1.0;
+
   const enhancedMetrics = {
     ...baseMetrics,
     // Price metrics
     averagePrice: `$${baseMetrics.avgPrice.toLocaleString()}`,
     medianPrice: `$${Math.round(baseMetrics.avgPrice * 0.92).toLocaleString()}`,
     pricePerSqFt: `$${Math.round(baseMetrics.avgPrice / (1800 * typeMultiplier))}`,
-    listToSaleRatio: 102.5 - (typeMultiplier * 2),
-    
+    listToSaleRatio: 102.5 - typeMultiplier * 2,
+
     // Changes
     medianPriceChange: baseMetrics.priceChange - 0.5,
     pricePerSqFtChange: baseMetrics.priceChange + 1.2,
     listToSaleChange: 1.2,
-    
+
     // Activity metrics
     totalSales: baseMetrics.totalSales,
     daysOnMarket: baseMetrics.avgDaysOnMarket,
     newListings: Math.round(baseMetrics.totalSales * 1.2),
-    absorptionRate: 65 + (typeMultiplier * 5),
-    
+    absorptionRate: 65 + typeMultiplier * 5,
+
     // Activity changes
     daysOnMarketChange: baseMetrics.daysChange,
     newListingsChange: 8.5,
     absorptionRateChange: 3.2,
-    
+
     // Market conditions
-    monthsOfInventory: (baseMetrics.inventory / baseMetrics.totalSales).toFixed(1),
+    monthsOfInventory: (baseMetrics.inventory / baseMetrics.totalSales).toFixed(
+      1
+    ),
     priceToIncome: 12.5 * typeMultiplier,
-    sellerMarketIndex: 78 - (typeMultiplier * 5),
+    sellerMarketIndex: 78 - typeMultiplier * 5,
     affordabilityIndex: 42 / typeMultiplier,
-    
+
     // Market changes
     priceToIncomeChange: 5.2,
   };
-  
+
   return { enhancedMetrics };
 };
 
 // Market trends data function
 export const getMarketTrendsData = (region, housingType) => {
-  const priceData = getDataForRegionAndType('priceData', region, housingType) || [];
-  const salesData = getDataForRegionAndType('salesData', region, housingType) || [];
-  
+  const priceData =
+    getDataForRegionAndType('priceData', region, housingType) || [];
+  const salesData =
+    getDataForRegionAndType('salesData', region, housingType) || [];
+
   // Combine price and sales data with additional metrics
   return priceData.map((pricePoint, index) => {
     const salesPoint = salesData[index] || { sales: 0 };
     const basePrice = priceData[0]?.price || 1000000;
     const baseSales = salesData[0]?.sales || 100;
-    
+
     return {
       month: pricePoint.month.split(' ')[0], // Just the month name
       price: pricePoint.price,
       sales: salesPoint.sales,
       priceIndex: Math.round((pricePoint.price / basePrice) * 100),
       salesIndex: Math.round((salesPoint.sales / baseSales) * 100),
-      affordabilityIndex: Math.round(100 - ((pricePoint.price / basePrice) * 50)),
+      affordabilityIndex: Math.round(100 - (pricePoint.price / basePrice) * 50),
       listToSaleRatio: 98 + Math.random() * 8,
     };
   });
@@ -1208,17 +1402,25 @@ export const getMarketTrendsData = (region, housingType) => {
 // Regional comparison data function
 export const getRegionalComparisonData = (metric, housingType) => {
   const regions = ['Mississauga', 'Brampton', 'Caledon', 'Peel Region'];
-  
+
   return regions.map(region => {
-    const metrics = getDataForRegionAndType('keyMetrics', region, housingType) || housingData.keyMetrics['Peel Region']['All Types'];
-    
+    const metrics =
+      getDataForRegionAndType('keyMetrics', region, housingType) ||
+      housingData.keyMetrics['Peel Region']['All Types'];
+
     // Adjust Ontario average based on housing type
-    const typeMultiplier = housingType === 'Detached' ? 1.4 : 
-                          housingType === 'Semi-Detached' ? 1.1 :
-                          housingType === 'Townhouse' ? 0.95 :
-                          housingType === 'Condo' ? 0.75 : 1.0;
-    
-    switch(metric) {
+    const typeMultiplier =
+      housingType === 'Detached'
+        ? 1.4
+        : housingType === 'Semi-Detached'
+          ? 1.1
+          : housingType === 'Townhouse'
+            ? 0.95
+            : housingType === 'Condo'
+              ? 0.75
+              : 1.0;
+
+    switch (metric) {
       case 'averagePrice':
         return {
           name: region,
@@ -1247,4 +1449,4 @@ export const getRegionalComparisonData = (metric, housingType) => {
         return { name: region, value: 0, ontarioAverage: 0 };
     }
   });
-}; 
+};

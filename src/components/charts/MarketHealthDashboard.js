@@ -130,7 +130,7 @@ function MarketHealthDashboard() {
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">
         <div>
           <h3 className="text-lg font-bold text-gray-800 flex items-center mb-2">

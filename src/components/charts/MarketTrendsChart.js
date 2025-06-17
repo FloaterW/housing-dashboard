@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { 
-  ComposedChart, 
-  Line, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
-  Area
+  Area,
 } from 'recharts';
 import { getMarketTrendsData } from '../../data/housingData';
 
 function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
   const [metricsPair, setMetricsPair] = useState('price-volume');
   const trendsData = getMarketTrendsData(selectedRegion, selectedHousingType);
-  
+
   const metricsPairs = {
     'price-volume': {
       title: 'Price & Sales Volume Trends',
@@ -39,7 +39,7 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
       showArea: false,
     },
   };
-  
+
   const activeMetrics = metricsPairs[metricsPair];
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -49,8 +49,8 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
           <p className="font-semibold text-gray-800 mb-2">{label}</p>
           {payload.map((entry, index) => (
             <div key={index} className="flex items-center space-x-2 text-sm">
-              <div 
-                className="w-3 h-3 rounded-full" 
+              <div
+                className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-gray-600">{entry.name}:</span>
@@ -64,28 +64,33 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 transform transition-all duration-300 hover:shadow-xl">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-gray-800">{activeMetrics.title}</h3>
+        <h3 className="text-xl font-bold text-gray-800">
+          {activeMetrics.title}
+        </h3>
         <div className="flex space-x-2">
           {Object.entries(metricsPairs).map(([key, value]) => (
             <button
               key={key}
               className={`
                 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300
-                ${metricsPair === key 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-105' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ${
+                  metricsPair === key
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-105'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }
               `}
               onClick={() => setMetricsPair(key)}
             >
-              {key === 'price-volume' ? 'Price & Volume' : 'Affordability & Ratio'}
+              {key === 'price-volume'
+                ? 'Price & Volume'
+                : 'Affordability & Ratio'}
             </button>
           ))}
         </div>
       </div>
-      
+
       <ResponsiveContainer width="100%" height={350}>
         <ComposedChart
           data={trendsData}
@@ -93,41 +98,54 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
         >
           <defs>
             <linearGradient id="colorLeft" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={activeMetrics.leftColor} stopOpacity={0.8}/>
-              <stop offset="95%" stopColor={activeMetrics.leftColor} stopOpacity={0.1}/>
+              <stop
+                offset="5%"
+                stopColor={activeMetrics.leftColor}
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor={activeMetrics.leftColor}
+                stopOpacity={0.1}
+              />
             </linearGradient>
             <linearGradient id="colorRight" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={activeMetrics.rightColor} stopOpacity={0.8}/>
-              <stop offset="95%" stopColor={activeMetrics.rightColor} stopOpacity={0.1}/>
+              <stop
+                offset="5%"
+                stopColor={activeMetrics.rightColor}
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor={activeMetrics.rightColor}
+                stopOpacity={0.1}
+              />
             </linearGradient>
           </defs>
-          
+
           <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis 
-            dataKey="month" 
+          <XAxis
+            dataKey="month"
             tick={{ fontSize: 12 }}
             tickLine={false}
             axisLine={{ stroke: '#e5e7eb' }}
           />
-          <YAxis 
+          <YAxis
             yAxisId="left"
             tick={{ fontSize: 12 }}
             tickLine={false}
             axisLine={{ stroke: '#e5e7eb' }}
           />
-          <YAxis 
-            yAxisId="right" 
+          <YAxis
+            yAxisId="right"
             orientation="right"
             tick={{ fontSize: 12 }}
             tickLine={false}
             axisLine={{ stroke: '#e5e7eb' }}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend 
-            wrapperStyle={{ paddingTop: '20px' }}
-            iconType="circle"
-          />
-          
+          <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="circle" />
+
           {activeMetrics.showArea && (
             <Area
               yAxisId="left"
@@ -138,7 +156,7 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
               fill="url(#colorLeft)"
             />
           )}
-          
+
           <Line
             yAxisId="left"
             type="monotone"
@@ -149,7 +167,7 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
             dot={{ fill: activeMetrics.leftColor, r: 4 }}
             activeDot={{ r: 6, className: 'animate-pulse' }}
           />
-          
+
           <Bar
             yAxisId="right"
             dataKey={activeMetrics.rightMetric}
@@ -164,4 +182,4 @@ function MarketTrendsChart({ selectedRegion, selectedHousingType }) {
   );
 }
 
-export default MarketTrendsChart; 
+export default MarketTrendsChart;
