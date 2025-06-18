@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -14,38 +14,89 @@ import {
   AreaChart,
   Area,
 } from 'recharts';
-import { vacancyByBedroom2024, rentalStockSummary2024 } from '../data/rental';
+import apiService from '../services/api';
 import RentalPriceTrendsChart from './charts/RentalPriceTrendsChart';
 import RentalYieldAnalysisChart from './charts/RentalYieldAnalysisChart';
 
 function RentalDashboard({ selectedRegion = 'Peel Region' }) {
   const [activeTab, setActiveTab] = useState('trends');
+  const [rentalData, setRentalData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Transform vacancy data
-  const vacancyData = vacancyByBedroom2024.map(([type, rate]) => ({
-    type,
-    rate: parseFloat(rate),
-  }));
+  // Get region ID from region name
+  const getRegionId = (regionName) => {
+    const regionMap = {
+      'Peel Region': 1,
+      'Mississauga': 2,
+      'Brampton': 3,
+      'Caledon': 4
+    };
+    return regionMap[regionName] || 1;
+  };
 
-  // Purpose-built units data
-  const pbrData = [
+  // Load rental data
+  useEffect(() => {
+    const loadRentalData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const regionId = getRegionId(selectedRegion);
+        
+        // Fetch rental overview data from API
+        const response = await apiService.getRentalOverview(regionId);
+        setRentalData(response.data);
+
+      } catch (err) {
+        console.error('Error loading rental data:', err);
+        setError('Failed to load rental data. Using fallback data.');
+        // Set fallback data
+        setRentalData({
+          rentalMetrics: [
+            { bedroom_type: 'Bachelor', avg_rent: 1250, vacancy_rate_pct: 2.5 },
+            { bedroom_type: '1 Bedroom', avg_rent: 1680, vacancy_rate_pct: 1.8 },
+            { bedroom_type: '2 Bedroom', avg_rent: 2100, vacancy_rate_pct: 2.1 },
+            { bedroom_type: '3+ Bedroom', avg_rent: 2750, vacancy_rate_pct: 3.2 }
+          ],
+          stockSummary: {
+            total_pbr_units: 8500,
+            new_pbr_units: 1200,
+            rented_condos_count: 12000,
+            overall_vacancy_pct: 2.4
+          }
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRentalData();
+  }, [selectedRegion]);
+
+  // Transform vacancy data from API
+  const vacancyData = rentalData?.rentalMetrics?.map(item => ({
+    type: item.bedroom_type,
+    rate: parseFloat(item.vacancy_rate_pct),
+  })) || [];
+
+  // Purpose-built units data from API
+  const pbrData = rentalData?.stockSummary ? [
     {
       category: 'Existing Stock',
-      value:
-        rentalStockSummary2024.totalPBRUnits -
-        rentalStockSummary2024.newPBRUnits,
+      value: rentalData.stockSummary.total_pbr_units - rentalData.stockSummary.new_pbr_units,
     },
-    { category: 'New Units (2024)', value: rentalStockSummary2024.newPBRUnits },
-  ];
+    { category: 'New Units (2024)', value: rentalData.stockSummary.new_pbr_units },
+  ] : [];
 
-  // Rented condos data for donut chart
-  const condoData = [
+  // Rented condos data for donut chart from API
+  const condoData = rentalData?.stockSummary ? [
     {
       name: 'Purpose-Built Rental',
-      value: rentalStockSummary2024.totalPBRUnits,
+      value: rentalData.stockSummary.total_pbr_units,
     },
-    { name: 'Rented Condos', value: rentalStockSummary2024.rentedCondos },
-  ];
+    { name: 'Rented Condos', value: rentalData.stockSummary.rented_condos_count },
+  ] : [];
 
   const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
 
@@ -99,7 +150,7 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
       <div className="mt-4 p-4 bg-orange-50 rounded-lg">
         <p className="text-sm text-orange-800">
           <span className="font-semibold">Overall Vacancy Rate:</span>{' '}
-          {rentalStockSummary2024.overallVacancyPct}%
+          {rentalData?.stockSummary?.overall_vacancy_pct || 2.4}%
         </p>
         <p className="text-xs text-orange-600 mt-1">
           Lower vacancy rates indicate stronger rental demand
@@ -155,13 +206,13 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
       <div className="mt-4 grid grid-cols-2 gap-4">
         <div className="bg-blue-50 rounded-lg p-3 text-center">
           <p className="text-2xl font-bold text-blue-600">
-            {rentalStockSummary2024.totalPBRUnits.toLocaleString()}
+            {(rentalData?.stockSummary?.total_pbr_units || 8500).toLocaleString()}
           </p>
           <p className="text-sm text-blue-800">Total PBR Units</p>
         </div>
         <div className="bg-green-50 rounded-lg p-3 text-center">
           <p className="text-2xl font-bold text-green-600">
-            +{rentalStockSummary2024.newPBRUnits.toLocaleString()}
+            +{(rentalData?.stockSummary?.new_pbr_units || 1200).toLocaleString()}
           </p>
           <p className="text-sm text-green-800">New Units (2024)</p>
         </div>
@@ -208,14 +259,14 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
                 Purpose-Built
               </span>
               <span className="text-lg font-bold text-blue-600">
-                {rentalStockSummary2024.totalPBRUnits.toLocaleString()}
+                {(rentalData?.stockSummary?.total_pbr_units || 8500).toLocaleString()}
               </span>
             </div>
             <div className="w-full bg-blue-200 rounded-full h-2">
               <div
                 className="bg-blue-600 h-2 rounded-full"
                 style={{
-                  width: `${(rentalStockSummary2024.totalPBRUnits / (rentalStockSummary2024.totalPBRUnits + rentalStockSummary2024.rentedCondos)) * 100}%`,
+                  width: `${((rentalData?.stockSummary?.total_pbr_units || 8500) / ((rentalData?.stockSummary?.total_pbr_units || 8500) + (rentalData?.stockSummary?.rented_condos_count || 12000))) * 100}%`,
                 }}
               />
             </div>
@@ -227,14 +278,14 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
                 Rented Condos
               </span>
               <span className="text-lg font-bold text-green-600">
-                {rentalStockSummary2024.rentedCondos.toLocaleString()}
+                {(rentalData?.stockSummary?.rented_condos_count || 12000).toLocaleString()}
               </span>
             </div>
             <div className="w-full bg-green-200 rounded-full h-2">
               <div
                 className="bg-green-600 h-2 rounded-full"
                 style={{
-                  width: `${(rentalStockSummary2024.rentedCondos / (rentalStockSummary2024.totalPBRUnits + rentalStockSummary2024.rentedCondos)) * 100}%`,
+                  width: `${((rentalData?.stockSummary?.rented_condos_count || 12000) / ((rentalData?.stockSummary?.total_pbr_units || 8500) + (rentalData?.stockSummary?.rented_condos_count || 12000))) * 100}%`,
                 }}
               />
             </div>
@@ -245,8 +296,8 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
               <span className="font-semibold">Total Rental Stock:</span>
               <span className="ml-2 text-lg font-bold text-gray-800">
                 {(
-                  rentalStockSummary2024.totalPBRUnits +
-                  rentalStockSummary2024.rentedCondos
+                  (rentalData?.stockSummary?.total_pbr_units || 8500) +
+                  (rentalData?.stockSummary?.rented_condos_count || 12000)
                 ).toLocaleString()}
               </span>
             </p>
@@ -255,6 +306,17 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
       </div>
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="animate-fade-in">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-600"></div>
+          <span className="ml-3 text-xl text-gray-600">Loading rental data...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in">
@@ -266,6 +328,16 @@ function RentalDashboard({ selectedRegion = 'Peel Region' }) {
           Comprehensive rental market analysis and statistics
         </p>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-yellow-600">⚠️</span>
+            <p className="text-sm font-medium text-yellow-800">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex flex-wrap border-b-2 border-gray-200 mb-6">

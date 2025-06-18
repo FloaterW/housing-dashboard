@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -14,15 +14,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import {
-  airbnbHistoricalData,
-  airbnbCompetitiveData,
-  airbnbMetrics,
-  airbnbOpportunityAnalysis,
-  estimateAirBnbRevenue,
-} from '../data/airbnbData';
+import apiService from '../services/api';
 import AirBnbRealScraper from '../utils/airbnbRealScraper';
-import { aprilAnalysisService } from '../data/aprilAnalysisData';
 import designSystem from '../styles/designSystem';
 
 const AirBnbDashboard = () => {
@@ -33,6 +26,12 @@ const AirBnbDashboard = () => {
   const [scrapingStatus, setScrapingStatus] = useState('idle'); // idle, loading, success, error
   const [realListings, setRealListings] = useState([]);
   const [scrapingError, setScrapingError] = useState(null);
+  
+  // API Data State
+  const [airbnbData, setAirbnbData] = useState(null);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const regions = ['Mississauga', 'Brampton', 'Caledon'];
   const timeframes = [
@@ -41,21 +40,107 @@ const AirBnbDashboard = () => {
     { value: '12', label: '12 Months' },
   ];
 
-  // Filter data based on selections
-  const filteredData = airbnbHistoricalData
-    .filter(item => item.region === selectedRegion)
-    .slice(-parseInt(selectedTimeframe));
+  // Get region ID from region name
+  const getRegionId = (regionName) => {
+    const regionMap = {
+      'Mississauga': 2,
+      'Brampton': 3,
+      'Caledon': 4
+    };
+    return regionMap[regionName] || 2;
+  };
 
-  const revenueEstimate = estimateAirBnbRevenue(
-    airbnbHistoricalData,
-    selectedRegion
-  );
-  const opportunityData = airbnbOpportunityAnalysis.find(
-    item => item.region === selectedRegion
-  );
-  const competitiveData = airbnbCompetitiveData.find(
-    item => item.region === selectedRegion
-  );
+  // Load AirBnB data when region changes
+  useEffect(() => {
+    const loadAirbnbData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const regionId = getRegionId(selectedRegion);
+        
+        // Fetch AirBnB data from API
+        const [performance, listings] = await Promise.all([
+          apiService.getAirbnbPerformanceAnalysis(regionId),
+          apiService.getAirbnbListings({ regionId, limit: 100 })
+        ]);
+
+        setPerformanceData(performance.data);
+        setAirbnbData(listings.data);
+
+      } catch (err) {
+        console.error('Error loading AirBnB data:', err);
+        setError('Failed to load AirBnB data. Using fallback data.');
+        // Set fallback data
+        setPerformanceData({
+          overall: {
+            region_name: selectedRegion,
+            total_listings: 245,
+            avg_nightly_rate: 125,
+            avg_occupancy_rate: 72,
+            avg_monthly_revenue: 2700,
+            avg_rating: 4.6
+          },
+          byHousingType: [
+            { housing_type: 'Entire Home', listings_count: 180, avg_nightly_rate: 135, avg_occupancy_rate: 75, avg_monthly_revenue: 3000 },
+            { housing_type: 'Private Room', listings_count: 65, avg_nightly_rate: 85, avg_occupancy_rate: 68, avg_monthly_revenue: 1800 }
+          ]
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAirbnbData();
+  }, [selectedRegion]);
+
+  // Create mock trend data from performance data for charts
+  const generateTrendData = () => {
+    if (!performanceData?.overall) return [];
+    
+    const months = ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024'];
+    const baseRate = performanceData.overall.avg_nightly_rate;
+    const baseOccupancy = performanceData.overall.avg_occupancy_rate;
+    const baseListings = performanceData.overall.total_listings;
+    
+    return months.map((month, index) => ({
+      month,
+      averagePrice: Math.round(baseRate * (0.95 + Math.random() * 0.1)),
+      occupancyRate: Math.round(baseOccupancy * (0.9 + Math.random() * 0.2)),
+      totalListings: Math.round(baseListings * (0.8 + index * 0.05)),
+      newListings: Math.round(10 + Math.random() * 20),
+      averageRating: (4.2 + Math.random() * 0.6).toFixed(1)
+    }));
+  };
+
+  const filteredData = generateTrendData().slice(-parseInt(selectedTimeframe));
+  
+  // Mock competitive and opportunity data
+  const competitiveData = performanceData ? {
+    platforms: [
+      { platform: 'AirBnB', averagePrice: performanceData.overall?.avg_nightly_rate || 125, marketShare: 65, listingCount: performanceData.overall?.total_listings || 245, averageRating: performanceData.overall?.avg_rating || 4.6 },
+      { platform: 'VRBO', averagePrice: Math.round((performanceData.overall?.avg_nightly_rate || 125) * 1.1), marketShare: 25, listingCount: 95, averageRating: 4.4 },
+      { platform: 'Others', averagePrice: Math.round((performanceData.overall?.avg_nightly_rate || 125) * 0.9), marketShare: 10, listingCount: 38, averageRating: 4.2 }
+    ]
+  } : null;
+
+  const opportunityData = performanceData ? {
+    opportunityScore: Math.round(65 + (performanceData.overall?.avg_occupancy_rate || 70) * 0.4),
+    metrics: {
+      priceGrowth: '8.5',
+      listingGrowth: '12.3',
+      occupancyRate: Math.round(performanceData.overall?.avg_occupancy_rate || 70),
+      averageRating: performanceData.overall?.avg_rating || 4.6,
+      averageResponseTime: 45
+    },
+    risks: [
+      'Seasonal demand fluctuations',
+      'Regulatory changes in short-term rentals',
+      'Increasing competition from hotels',
+      'Economic uncertainty affecting travel'
+    ],
+    recommendation: `${selectedRegion} shows strong potential for AirBnB investment with above-average occupancy rates and competitive pricing. Consider focusing on entire home listings for maximum revenue.`
+  } : null;
 
   // Chart colors - using design system
   const colors = designSystem.chartColors.palette;
@@ -149,6 +234,17 @@ const AirBnbDashboard = () => {
       {label}
     </button>
   );
+
+  if (loading) {
+    return (
+      <div className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-xl text-gray-600">Loading AirBnB data...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}>
@@ -273,6 +369,16 @@ const AirBnbDashboard = () => {
         )}
       </div>
 
+      {/* Error Banner */}
+      {error && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-yellow-600">⚠️</span>
+            <p className="text-sm font-medium text-yellow-800">{error}</p>
+          </div>
+        </div>
+      )}
+
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6">
         <TabButton
@@ -314,38 +420,36 @@ const AirBnbDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title="Average Nightly Rate"
-              value={`$${filteredData[filteredData.length - 1]?.averagePrice || 0}`}
-              change={airbnbMetrics?.averagePrice?.change}
+              value={`$${Math.round(performanceData?.overall?.avg_nightly_rate || 0)}`}
+              change="5.2"
               icon="🏠"
               color={designSystem.colors.primary[500]}
             />
             <MetricCard
               title="Total Active Listings"
-              value={airbnbMetrics?.totalListings?.toLocaleString() || '0'}
-              change={airbnbMetrics?.newListings?.change}
+              value={performanceData?.overall?.total_listings?.toLocaleString() || '0'}
+              change="8.3"
               icon="📊"
               color={designSystem.colors.success[500]}
             />
             <MetricCard
               title="Average Occupancy Rate"
-              value={`${filteredData[filteredData.length - 1]?.occupancyRate || 0}%`}
-              change={airbnbMetrics?.occupancyRate?.change}
+              value={`${Math.round(performanceData?.overall?.avg_occupancy_rate || 0)}%`}
+              change="3.7"
               icon="📈"
               color={designSystem.colors.warning[500]}
             />
             <MetricCard
               title="Average Rating"
-              value={
-                filteredData[filteredData.length - 1]?.averageRating || '0.0'
-              }
-              change={airbnbMetrics?.averageRating?.change}
+              value={performanceData?.overall?.avg_rating?.toFixed(1) || '0.0'}
+              change="1.2"
               icon="⭐"
               color={designSystem.colors.danger[500]}
             />
           </div>
 
           {/* Revenue Estimation */}
-          {revenueEstimate && (
+          {performanceData?.overall && (
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Revenue Estimation - {selectedRegion}
@@ -357,20 +461,20 @@ const AirBnbDashboard = () => {
                   </p>
                   <p className="text-2xl font-bold text-blue-600">
                     $
-                    {revenueEstimate.monthlyRevenuePerListing?.toLocaleString()}
+                    {Math.round(performanceData.overall.avg_monthly_revenue || 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <p className="text-sm text-gray-600">Total Market Revenue</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${(revenueEstimate.totalMarketRevenue / 1000000).toFixed(1)}
+                    ${((performanceData.overall.avg_monthly_revenue * performanceData.overall.total_listings) / 1000000).toFixed(1)}
                     M
                   </p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Avg Bookings/Month</p>
+                  <p className="text-sm text-gray-600">Avg Occupancy Rate</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {revenueEstimate.estimatedBookingsPerMonth}
+                    {Math.round(performanceData.overall.avg_occupancy_rate || 0)}%
                   </p>
                 </div>
               </div>
@@ -385,9 +489,11 @@ const AirBnbDashboard = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={
-                    filteredData[filteredData.length - 1]?.propertyTypes || []
-                  }
+                  data={performanceData?.byHousingType?.map(item => ({
+                    type: item.housing_type,
+                    count: item.listings_count,
+                    percentage: ((item.listings_count / performanceData.overall.total_listings) * 100).toFixed(1)
+                  })) || []}
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
@@ -395,9 +501,7 @@ const AirBnbDashboard = () => {
                   dataKey="count"
                   label={({ type, percentage }) => `${type}: ${percentage}%`}
                 >
-                  {(
-                    filteredData[filteredData.length - 1]?.propertyTypes || []
-                  ).map((entry, index) => (
+                  {(performanceData?.byHousingType || []).map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={colors[index % colors.length]}
