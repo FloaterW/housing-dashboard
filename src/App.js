@@ -3,6 +3,7 @@ import './App.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
+import ApiTest from './components/ApiTest';
 
 // Lazy load components for code splitting
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
@@ -106,7 +107,9 @@ function App() {
             />
           </div>
           <main className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="max-w-7xl mx-auto">{renderContent()}</div>
+            <div className="max-w-7xl mx-auto">
+              {renderContent()}
+            </div>
           </main>
         </div>
       </div>
