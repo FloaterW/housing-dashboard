@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView';
 import Graphic from '@arcgis/core/Graphic';
@@ -15,59 +15,62 @@ function HousingMapDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Extended housing data with geographic coordinates for Peel Region and surrounding areas
-  const housingGeoData = [
-    {
-      municipality: 'Mississauga',
-      geometry: [-79.6441, 43.589], // [longitude, latitude]
-      avgPrice: 1350000,
-      priceGrowth: 11.9,
-      affordabilityRate: 45.2,
-      riskScore: 85,
-      marketTemp: 82,
-      inventory: 1.8,
-    },
-    {
-      municipality: 'Brampton',
-      geometry: [-79.7624, 43.7315],
-      avgPrice: 1150000,
-      priceGrowth: 10.2,
-      affordabilityRate: 58.3,
-      riskScore: 74,
-      marketTemp: 74,
-      inventory: 2.3,
-    },
-    {
-      municipality: 'Caledon',
-      geometry: [-79.8711, 43.8554],
-      avgPrice: 1650000,
-      priceGrowth: 7.6,
-      affordabilityRate: 28.1,
-      riskScore: 68,
-      marketTemp: 68,
-      inventory: 3.2,
-    },
-    // Additional neighborhoods for better heatmap
-    {
-      municipality: 'Oakville',
-      geometry: [-79.6876, 43.4675],
-      avgPrice: 1750000,
-      priceGrowth: 9.8,
-      affordabilityRate: 32.1,
-      riskScore: 78,
-      marketTemp: 79,
-      inventory: 1.5,
-    },
-    {
-      municipality: 'Milton',
-      geometry: [-79.8774, 43.5183],
-      avgPrice: 1450000,
-      priceGrowth: 12.1,
-      affordabilityRate: 41.8,
-      riskScore: 76,
-      marketTemp: 81,
-      inventory: 2.1,
-    },
-  ];
+  const housingGeoData = useMemo(
+    () => [
+      {
+        municipality: 'Mississauga',
+        geometry: [-79.6441, 43.589], // [longitude, latitude]
+        avgPrice: 1350000,
+        priceGrowth: 11.9,
+        affordabilityRate: 45.2,
+        riskScore: 85,
+        marketTemp: 82,
+        inventory: 1.8,
+      },
+      {
+        municipality: 'Brampton',
+        geometry: [-79.7624, 43.7315],
+        avgPrice: 1150000,
+        priceGrowth: 10.2,
+        affordabilityRate: 58.3,
+        riskScore: 74,
+        marketTemp: 74,
+        inventory: 2.3,
+      },
+      {
+        municipality: 'Caledon',
+        geometry: [-79.8711, 43.8554],
+        avgPrice: 1650000,
+        priceGrowth: 7.6,
+        affordabilityRate: 28.1,
+        riskScore: 68,
+        marketTemp: 68,
+        inventory: 3.2,
+      },
+      // Additional neighborhoods for better heatmap
+      {
+        municipality: 'Oakville',
+        geometry: [-79.6876, 43.4675],
+        avgPrice: 1750000,
+        priceGrowth: 9.8,
+        affordabilityRate: 32.1,
+        riskScore: 78,
+        marketTemp: 79,
+        inventory: 1.5,
+      },
+      {
+        municipality: 'Milton',
+        geometry: [-79.8774, 43.5183],
+        avgPrice: 1450000,
+        priceGrowth: 12.1,
+        affordabilityRate: 41.8,
+        riskScore: 76,
+        marketTemp: 81,
+        inventory: 2.1,
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     try {
@@ -282,7 +285,7 @@ function HousingMapDashboard() {
       // Error loading ArcGIS modules (logged by parent component)
       setIsLoading(false);
     }
-  }, [selectedMetric, mapType]);
+  }, [selectedMetric, mapType, housingGeoData]);
 
   // Update map when metric changes
   useEffect(() => {

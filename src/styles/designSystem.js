@@ -12,7 +12,7 @@ export const colors = {
     600: '#2563eb',
     700: '#1d4ed8',
     800: '#1e40af',
-    900: '#1e3a8a'
+    900: '#1e3a8a',
   },
   secondary: {
     50: '#f0fdf4',
@@ -24,7 +24,7 @@ export const colors = {
     600: '#16a34a',
     700: '#15803d',
     800: '#166534',
-    900: '#14532d'
+    900: '#14532d',
   },
   accent: {
     50: '#fef3c7',
@@ -36,7 +36,7 @@ export const colors = {
     600: '#b45309',
     700: '#92400e',
     800: '#78350f',
-    900: '#451a03'
+    900: '#451a03',
   },
   danger: {
     50: '#fef2f2',
@@ -48,7 +48,7 @@ export const colors = {
     600: '#dc2626',
     700: '#b91c1c',
     800: '#991b1b',
-    900: '#7f1d1d'
+    900: '#7f1d1d',
   },
   warning: {
     50: '#fffbeb',
@@ -60,7 +60,7 @@ export const colors = {
     600: '#d97706',
     700: '#b45309',
     800: '#92400e',
-    900: '#78350f'
+    900: '#78350f',
   },
   success: {
     50: '#ecfdf5',
@@ -72,7 +72,7 @@ export const colors = {
     600: '#059669',
     700: '#047857',
     800: '#065f46',
-    900: '#064e3b'
+    900: '#064e3b',
   },
   gray: {
     50: '#f9fafb',
@@ -84,8 +84,8 @@ export const colors = {
     600: '#4b5563',
     700: '#374151',
     800: '#1f2937',
-    900: '#111827'
-  }
+    900: '#111827',
+  },
 };
 
 export const gradients = {
@@ -97,7 +97,7 @@ export const gradients = {
   danger: 'from-red-500 to-red-600',
   warning: 'from-yellow-500 to-orange-500',
   success: 'from-green-500 to-emerald-600',
-  
+
   // Card gradients
   cardPrimary: 'from-blue-50 to-blue-100',
   cardSecondary: 'from-green-50 to-green-100',
@@ -105,10 +105,10 @@ export const gradients = {
   cardDanger: 'from-red-50 to-red-100',
   cardWarning: 'from-yellow-50 to-orange-100',
   cardSuccess: 'from-green-50 to-emerald-100',
-  
+
   // Special gradients
   header: 'from-blue-600 via-purple-600 to-indigo-600',
-  dashboard: 'from-gray-50 to-gray-100'
+  dashboard: 'from-gray-50 to-gray-100',
 };
 
 export const typography = {
@@ -118,26 +118,26 @@ export const typography = {
   h3: 'text-xl font-semibold text-gray-800',
   h4: 'text-lg font-semibold text-gray-800',
   h5: 'text-base font-semibold text-gray-700',
-  
+
   // Body text
   body: 'text-base text-gray-600',
   bodyLarge: 'text-lg text-gray-600',
   bodySmall: 'text-sm text-gray-600',
   caption: 'text-xs text-gray-500',
-  
+
   // Special text
   subtitle: 'text-lg text-gray-600',
   label: 'text-sm font-medium text-gray-700',
-  
+
   // Interactive text
   link: 'text-blue-600 hover:text-blue-800',
   buttonText: 'font-medium',
-  
+
   // Status text
   success: 'text-green-600',
   warning: 'text-yellow-600',
   danger: 'text-red-600',
-  muted: 'text-gray-500'
+  muted: 'text-gray-500',
 };
 
 export const spacing = {
@@ -145,21 +145,21 @@ export const spacing = {
   container: 'p-6',
   containerLarge: 'p-8',
   containerSmall: 'p-4',
-  
+
   // Section spacing
   sectionGap: 'space-y-8',
   sectionGapSmall: 'space-y-6',
   sectionGapLarge: 'space-y-10',
-  
+
   // Component spacing
   componentGap: 'space-y-4',
   componentGapSmall: 'space-y-2',
   componentGapLarge: 'space-y-6',
-  
+
   // Grid gaps
   gridGap: 'gap-6',
   gridGapSmall: 'gap-4',
-  gridGapLarge: 'gap-8'
+  gridGapLarge: 'gap-8',
 };
 
 export const borders = {
@@ -167,21 +167,21 @@ export const borders = {
     small: 'rounded-lg',
     medium: 'rounded-xl',
     large: 'rounded-2xl',
-    full: 'rounded-full'
+    full: 'rounded-full',
   },
-  
+
   width: {
     thin: 'border',
     medium: 'border-2',
-    thick: 'border-4'
+    thick: 'border-4',
   },
-  
+
   accent: {
     left: 'border-l-4',
     top: 'border-t-4',
     right: 'border-r-4',
-    bottom: 'border-b-4'
-  }
+    bottom: 'border-b-4',
+  },
 };
 
 export const shadows = {
@@ -189,22 +189,22 @@ export const shadows = {
   medium: 'shadow-lg',
   large: 'shadow-xl',
   card: 'shadow-lg hover:shadow-xl',
-  button: 'shadow-md hover:shadow-lg'
+  button: 'shadow-md hover:shadow-lg',
 };
 
 export const animations = {
   transition: 'transition-all duration-300',
   transitionFast: 'transition-all duration-200',
   transitionSlow: 'transition-all duration-500',
-  
+
   // Hover effects
   hoverScale: 'hover:scale-105',
   hoverScaleSmall: 'hover:scale-102',
-  
+
   // Loading
   spin: 'animate-spin',
   pulse: 'animate-pulse',
-  bounce: 'animate-bounce'
+  bounce: 'animate-bounce',
 };
 
 export const layout = {
@@ -213,7 +213,7 @@ export const layout = {
   gridResponsive: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
   gridResponsive4: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
   gridResponsive2: 'grid grid-cols-1 lg:grid-cols-2',
-  
+
   // Flex layouts
   flexBetween: 'flex justify-between items-center',
   flexCenter: 'flex justify-center items-center',
@@ -221,45 +221,54 @@ export const layout = {
   flexEnd: 'flex justify-end items-center',
   flexCol: 'flex flex-col',
   flexWrap: 'flex flex-wrap',
-  
+
   // Responsive
   responsiveFlex: 'flex flex-col lg:flex-row',
-  responsiveText: 'text-center lg:text-left'
+  responsiveText: 'text-center lg:text-left',
 };
 
 // Component-specific styles
 export const components = {
   card: {
     base: 'bg-white rounded-xl shadow-lg p-6',
-    hover: 'bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300',
+    hover:
+      'bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300',
     bordered: 'bg-white rounded-xl shadow-lg p-6 border border-gray-200',
-    accent: 'bg-white rounded-xl shadow-lg p-6 border-l-4'
+    accent: 'bg-white rounded-xl shadow-lg p-6 border-l-4',
   },
-  
+
   button: {
-    primary: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
-    secondary: 'bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition-all duration-300',
-    success: 'bg-gradient-to-r from-green-500 to-green-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
-    warning: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
-    danger: 'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105'
+    primary:
+      'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
+    secondary:
+      'bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition-all duration-300',
+    success:
+      'bg-gradient-to-r from-green-500 to-green-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
+    warning:
+      'bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
+    danger:
+      'bg-gradient-to-r from-red-500 to-red-600 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105',
   },
-  
+
   input: {
     base: 'px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200',
-    error: 'px-3 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200'
+    error:
+      'px-3 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200',
   },
-  
+
   tab: {
-    active: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 scale-105',
-    inactive: 'bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition-all duration-300 hover:scale-102'
+    active:
+      'bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-md transition-all duration-300 scale-105',
+    inactive:
+      'bg-gray-100 text-gray-700 font-medium px-6 py-3 rounded-lg hover:bg-gray-200 transition-all duration-300 hover:scale-102',
   },
-  
+
   metric: {
     card: 'bg-white p-6 rounded-xl shadow-lg border-l-4 hover:shadow-xl transition-all duration-300',
     value: 'text-2xl font-bold',
     label: 'text-sm font-medium text-gray-600',
-    change: 'text-sm font-medium'
-  }
+    change: 'text-sm font-medium',
+  },
 };
 
 // Chart colors that align with design system
@@ -270,21 +279,21 @@ export const chartColors = {
   danger: colors.danger[500],
   warning: colors.warning[500],
   success: colors.success[500],
-  
+
   // Chart palette
   palette: [
-    colors.primary[500],    // #3b82f6
-    colors.secondary[500],  // #22c55e  
-    colors.accent[500],     // #d97706
-    colors.danger[500],     // #ef4444
-    colors.warning[500],    // #f59e0b
-    '#8b5cf6',              // purple-500
-    '#06b6d4',              // cyan-500
-    '#f97316'               // orange-500
-  ]
+    colors.primary[500], // #3b82f6
+    colors.secondary[500], // #22c55e
+    colors.accent[500], // #d97706
+    colors.danger[500], // #ef4444
+    colors.warning[500], // #f59e0b
+    '#8b5cf6', // purple-500
+    '#06b6d4', // cyan-500
+    '#f97316', // orange-500
+  ],
 };
 
-export default {
+const designSystem = {
   colors,
   gradients,
   typography,
@@ -294,5 +303,7 @@ export default {
   animations,
   layout,
   components,
-  chartColors
+  chartColors,
 };
+
+export default designSystem;

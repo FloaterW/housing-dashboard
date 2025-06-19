@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { format, addDays } from 'date-fns';
+import { format } from 'date-fns';
 import logger from './logger';
 
 class AirBnbRealScraper {
@@ -425,7 +425,7 @@ class AirBnbRealScraper {
       logger.debug('🧪 Testing AirBnB connectivity...');
 
       const testUrl = 'https://www.airbnb.com/api/v2/explore_tabs';
-      const response = await fetch(testUrl, {
+      await fetch(testUrl, {
         method: 'HEAD',
         mode: 'no-cors',
       });
