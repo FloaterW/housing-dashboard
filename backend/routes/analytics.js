@@ -19,6 +19,129 @@ const validateRequest = (req, res, next) => {
 };
 
 /**
+ * GET /api/analytics/market-summary
+ * Get key market metrics summary for specific region and housing type
+ */
+router.get('/market-summary', [
+  query('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
+  query('housingTypeId').optional().isInt({ min: 1 }).withMessage('Housing type ID must be a positive integer'),
+  query('period').optional().isIn(['monthly', 'quarterly', 'yearly']).withMessage('Period must be monthly, quarterly, or yearly'),
+  validateRequest
+], async (req, res) => {
+  try {
+    const { regionId, housingTypeId = 1, period = 'monthly' } = req.query;
+
+    // Build housing type filter and query parameters
+    const housingTypeFilter = housingTypeId === '1' ? '' : 'AND ps.housing_type_id = ?';
+    
+    // Parameters need to include regionId for subqueries
+    let currentQueryParams, previousQueryParams;
+    if (housingTypeId === '1') {
+      currentQueryParams = [regionId, regionId]; // regionId for main query and subquery
+      previousQueryParams = [regionId, regionId, regionId]; // regionId for main query and two subqueries
+    } else {
+      currentQueryParams = [regionId, housingTypeId, regionId]; // regionId, housingTypeId, regionId for subquery
+      previousQueryParams = [regionId, housingTypeId, regionId, regionId]; // regionId, housingTypeId, and two regionIds for subqueries
+    }
+
+    // Get current period metrics (use last 3 months of available data)
+    const currentQuery = `
+      SELECT 
+        COUNT(*) as total_sales,
+        AVG(ps.sale_price) as avg_price,
+        AVG(ps.days_on_market) as avg_days_on_market,
+        SUM(ps.sale_price) as total_sales_value,
+        MAX(ps.sale_date) as latest_sale_date,
+        MIN(ps.sale_date) as earliest_sale_date
+      FROM property_sales ps
+      WHERE ps.region_id = ?
+        ${housingTypeFilter}
+        AND ps.sale_date >= (
+          SELECT DATE_SUB(MAX(sale_date), INTERVAL 90 DAY) 
+          FROM property_sales 
+          WHERE region_id = ?
+        )
+    `;
+
+    // Get previous period metrics for comparison (3 months before current period)
+    const previousQuery = `
+      SELECT 
+        COUNT(*) as total_sales,
+        AVG(ps.sale_price) as avg_price,
+        AVG(ps.days_on_market) as avg_days_on_market
+      FROM property_sales ps
+      WHERE ps.region_id = ?
+        ${housingTypeFilter}
+        AND ps.sale_date >= (
+          SELECT DATE_SUB(MAX(sale_date), INTERVAL 180 DAY) 
+          FROM property_sales 
+          WHERE region_id = ?
+        )
+        AND ps.sale_date < (
+          SELECT DATE_SUB(MAX(sale_date), INTERVAL 90 DAY) 
+          FROM property_sales 
+          WHERE region_id = ?
+        )
+    `;
+
+    // Get active listings count
+    const inventoryQuery = `
+      SELECT COUNT(*) as active_listings
+      FROM active_listings al
+      WHERE al.region_id = ?
+        ${housingTypeId !== '1' ? 'AND al.housing_type_id = ?' : ''}
+    `;
+
+    const inventoryParams = housingTypeId === '1' ? [regionId] : [regionId, housingTypeId];
+
+    const [currentResult, previousResult, inventoryResult] = await Promise.all([
+      database.query(currentQuery, currentQueryParams),
+      database.query(previousQuery, previousQueryParams),
+      database.query(inventoryQuery, inventoryParams)
+    ]);
+
+    const current = currentResult.rows[0];
+    const previous = previousResult.rows[0];
+    const inventory = inventoryResult.rows[0];
+
+    // Calculate percentage changes
+    const calculateChange = (current, previous) => {
+      if (!previous || previous === 0) return 0;
+      return ((current - previous) / previous * 100);
+    };
+
+    const metrics = {
+      avg_price: current.avg_price || 0,
+      price_change_pct: calculateChange(current.avg_price, previous.avg_price),
+      total_sales: current.total_sales || 0,
+      sales_change_pct: calculateChange(current.total_sales, previous.total_sales),
+      avg_days_on_market: current.avg_days_on_market || 0,
+      days_change_pct: calculateChange(previous.avg_days_on_market, current.avg_days_on_market), // Inverted because lower is better
+      active_listings: inventory.active_listings || 0,
+      inventory_change_pct: 0, // Would need additional query for previous inventory
+      total_sales_value: current.total_sales_value || 0
+    };
+
+    res.json({
+      success: true,
+      data: metrics,
+      metadata: {
+        regionId: parseInt(regionId),
+        housingTypeId: parseInt(housingTypeId),
+        period,
+        generatedAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    logger.error('Error fetching market summary:', error);
+    res.status(500).json({
+      error: 'Failed to fetch market summary',
+      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+/**
  * GET /api/analytics/market-overview
  * Get comprehensive market overview across all regions
  */

@@ -1,31 +1,69 @@
 import React from 'react';
-import { getDataForRegionAndType } from '../data/housingData';
+import { useApi } from '../hooks/useApi';
+import {
+  mapRegionToId,
+  mapHousingTypeToId,
+  transformMarketMetrics,
+  getFallbackMetrics,
+  formatCurrency,
+  isValidData,
+} from '../utils/dataMappers';
 import designSystem from '../styles/designSystem';
+import logger from '../utils/logger';
 
 function KeyMetrics({ selectedRegion, selectedHousingType }) {
-  const metrics = getDataForRegionAndType(
-    'keyMetrics',
-    selectedRegion,
-    selectedHousingType
-  ) || {
-    avgPrice: 1245000,
-    priceChange: 5.2,
-    totalSales: 1400,
-    salesChange: 3.7,
-    avgDaysOnMarket: 18,
-    daysChange: -2.5,
-    inventory: 3500,
-    inventoryChange: -8.3,
-  };
+  // Map frontend selections to backend IDs
+  const regionId = mapRegionToId(selectedRegion);
+  const housingTypeId = mapHousingTypeToId(selectedHousingType);
 
-  const formatCurrency = value => {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency: 'CAD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  // Fetch market metrics from API
+  const {
+    data: rawMetrics,
+    loading,
+    error,
+  } = useApi(
+    '/analytics/market-summary',
+    {
+      regionId,
+      housingTypeId,
+      period: 'monthly',
+    },
+    {
+      cache: true,
+      cacheTime: 5 * 60 * 1000, // 5 minutes
+      onError: err => {
+        logger.error('Failed to fetch market metrics', err, {
+          selectedRegion,
+          selectedHousingType,
+          regionId,
+          housingTypeId,
+        });
+      },
+    }
+  );
+
+  // Transform backend data to frontend format or use fallback
+  const metrics = React.useMemo(() => {
+    if (isValidData(rawMetrics)) {
+      return transformMarketMetrics(rawMetrics);
+    }
+
+    // Use fallback data if API fails
+    const fallback = getFallbackMetrics();
+
+    // Log fallback usage
+    if (error) {
+      logger.warn('Using fallback metrics due to API error', {
+        selectedRegion,
+        selectedHousingType,
+        error: error,
+      });
+    }
+
+    return fallback;
+  }, [rawMetrics, error, selectedRegion, selectedHousingType]);
+
+  // Use imported formatCurrency from dataMappers instead of local function
 
   const formatChange = value => {
     const isPositive = value > 0;
@@ -88,10 +126,29 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
         <p className={designSystem.typography.bodySmall}>
           {selectedRegion} - {selectedHousingType}
         </p>
+
+        {/* Loading indicator */}
+        {loading && (
+          <div className="flex items-center text-sm text-gray-500 mt-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+            Loading market data...
+          </div>
+        )}
+
+        {/* Error indicator */}
+        {error && (
+          <div className="text-sm text-orange-600 mt-2 bg-orange-50 p-2 rounded">
+            ⚠️ Using cached data - API temporarily unavailable
+          </div>
+        )}
       </div>
 
       <div
-        className={designSystem.layout.gridResponsive4 + ' ' + designSystem.spacing.gridGap}
+        className={
+          designSystem.layout.gridResponsive4 +
+          ' ' +
+          designSystem.spacing.gridGap
+        }
         role="region"
         aria-label="Key performance metrics"
       >
