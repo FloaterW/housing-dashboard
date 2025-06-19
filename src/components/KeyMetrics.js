@@ -1,69 +1,23 @@
 import React from 'react';
-import { useApi } from '../hooks/useApi';
-import {
-  mapRegionToId,
-  mapHousingTypeToId,
-  transformMarketMetrics,
-  getFallbackMetrics,
-  formatCurrency,
-  isValidData,
-} from '../utils/dataMappers';
+import { getDataForRegionAndType } from '../data/housingData';
 import designSystem from '../styles/designSystem';
-import logger from '../utils/logger';
 
 function KeyMetrics({ selectedRegion, selectedHousingType }) {
-  // Map frontend selections to backend IDs
-  const regionId = mapRegionToId(selectedRegion);
-  const housingTypeId = mapHousingTypeToId(selectedHousingType);
-
-  // Fetch market metrics from API
-  const {
-    data: rawMetrics,
-    loading,
-    error,
-  } = useApi(
-    '/analytics/market-summary',
-    {
-      regionId,
-      housingTypeId,
-      period: 'monthly',
-    },
-    {
-      cache: true,
-      cacheTime: 5 * 60 * 1000, // 5 minutes
-      onError: err => {
-        logger.error('Failed to fetch market metrics', err, {
-          selectedRegion,
-          selectedHousingType,
-          regionId,
-          housingTypeId,
-        });
-      },
-    }
+  // Get hardcoded data for the selected region and housing type
+  const data = getDataForRegionAndType(
+    'keyMetrics',
+    selectedRegion,
+    selectedHousingType
   );
 
-  // Transform backend data to frontend format or use fallback
-  const metrics = React.useMemo(() => {
-    if (isValidData(rawMetrics)) {
-      return transformMarketMetrics(rawMetrics);
-    }
-
-    // Use fallback data if API fails
-    const fallback = getFallbackMetrics();
-
-    // Log fallback usage
-    if (error) {
-      logger.warn('Using fallback metrics due to API error', {
-        selectedRegion,
-        selectedHousingType,
-        error: error,
-      });
-    }
-
-    return fallback;
-  }, [rawMetrics, error, selectedRegion, selectedHousingType]);
-
-  // Use imported formatCurrency from dataMappers instead of local function
+  const formatCurrency = value => {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value || 0);
+  };
 
   const formatChange = value => {
     const isPositive = value > 0;
@@ -80,8 +34,8 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
   const metricCards = [
     {
       title: 'Average Price',
-      value: formatCurrency(metrics.avgPrice),
-      change: metrics.priceChange,
+      value: formatCurrency(data?.avgPrice || 0),
+      change: data?.priceChange || 0,
       icon: '💰',
       bgGradient: designSystem.gradients.primary,
       shadowColor: designSystem.shadows.card,
@@ -89,8 +43,8 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     },
     {
       title: 'Total Sales',
-      value: metrics.totalSales.toLocaleString(),
-      change: metrics.salesChange,
+      value: (data?.totalSales || 0).toLocaleString(),
+      change: data?.salesChange || 0,
       icon: '📊',
       bgGradient: designSystem.gradients.success,
       shadowColor: designSystem.shadows.card,
@@ -98,8 +52,8 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     },
     {
       title: 'Days on Market',
-      value: metrics.avgDaysOnMarket,
-      change: metrics.daysChange,
+      value: data?.avgDaysOnMarket || 0,
+      change: data?.daysChange || 0,
       icon: '📅',
       bgGradient: designSystem.gradients.warning,
       shadowColor: designSystem.shadows.card,
@@ -107,8 +61,8 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
     },
     {
       title: 'Active Inventory',
-      value: metrics.inventory.toLocaleString(),
-      change: metrics.inventoryChange,
+      value: (data?.inventory || 0).toLocaleString(),
+      change: data?.inventoryChange || 0,
       icon: '🏠',
       bgGradient: designSystem.gradients.accent,
       shadowColor: designSystem.shadows.card,
@@ -126,21 +80,6 @@ function KeyMetrics({ selectedRegion, selectedHousingType }) {
         <p className={designSystem.typography.bodySmall}>
           {selectedRegion} - {selectedHousingType}
         </p>
-
-        {/* Loading indicator */}
-        {loading && (
-          <div className="flex items-center text-sm text-gray-500 mt-2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
-            Loading market data...
-          </div>
-        )}
-
-        {/* Error indicator */}
-        {error && (
-          <div className="text-sm text-orange-600 mt-2 bg-orange-50 p-2 rounded">
-            ⚠️ Using cached data - API temporarily unavailable
-          </div>
-        )}
       </div>
 
       <div
