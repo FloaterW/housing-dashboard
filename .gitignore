@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+# backend dependencies
+/backend/node_modules
+
 # testing
 /coverage
 
@@ -18,6 +21,15 @@
 .env.test.local
 .env.production.local
 
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/backend/logs/
+*.log
+
+# cache files
+.eslintcache
+
+# environment files
+.env
