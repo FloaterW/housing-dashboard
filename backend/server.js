@@ -146,38 +146,6 @@ app.use(sanitizeInput);
 // ROUTES
 // ====================================================================
 
-// Simple test endpoint for sales data
-app.get('/api/test/sales', async (req, res) => {
-  try {
-    const { rows } = await database.query(`
-      SELECT 
-        ps.id,
-        ps.sale_date,
-        ps.sale_price,
-        ps.list_price,
-        r.name as region_name,
-        ht.name as housing_type_name
-      FROM property_sales ps
-      JOIN regions r ON ps.region_id = r.id
-      JOIN housing_types ht ON ps.housing_type_id = ht.id
-      ORDER BY ps.sale_date DESC
-      LIMIT 5
-    `);
-
-    res.json({
-      success: true,
-      data: rows,
-      count: rows.length
-    });
-  } catch (error) {
-    logger.error('Error:', error);
-    res.status(500).json({
-      error: 'Failed to fetch data',
-      message: error.message
-    });
-  }
-});
-
 // Health check (before authentication)
 app.use('/api/health', healthRoutes);
 

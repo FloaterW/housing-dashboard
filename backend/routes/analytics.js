@@ -31,104 +31,59 @@ router.get('/market-summary', [
   try {
     const { regionId, housingTypeId = 1, period = 'monthly' } = req.query;
 
-    // Build housing type filter and query parameters
-    const housingTypeFilter = housingTypeId === '1' ? '' : 'AND ps.housing_type_id = ?';
-    
-    // Parameters need to include regionId for subqueries
-    let currentQueryParams, previousQueryParams;
-    if (housingTypeId === '1') {
-      currentQueryParams = [regionId, regionId]; // regionId for main query and subquery
-      previousQueryParams = [regionId, regionId, regionId]; // regionId for main query and two subqueries
-    } else {
-      currentQueryParams = [regionId, housingTypeId, regionId]; // regionId, housingTypeId, regionId for subquery
-      previousQueryParams = [regionId, housingTypeId, regionId, regionId]; // regionId, housingTypeId, and two regionIds for subqueries
+    // Get key metrics directly from the new schema
+    const metricsQuery = `
+      SELECT 
+        avg_price,
+        price_change_pct,
+        total_sales,
+        sales_change_pct,
+        avg_days_on_market,
+        days_change_pct,
+        inventory_count,
+        inventory_change_pct,
+        data_date
+      FROM key_metrics km
+      WHERE km.region_id = ? 
+        AND km.housing_type_id = ?
+        AND km.data_date = (
+          SELECT MAX(data_date) 
+          FROM key_metrics 
+          WHERE region_id = ? AND housing_type_id = ?
+        )
+    `;
+
+    const result = await database.query(metricsQuery, [regionId, housingTypeId, regionId, housingTypeId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: 'No data found',
+        message: `No market data available for region ${regionId} and housing type ${housingTypeId}`
+      });
     }
 
-    // Get current period metrics (use last 3 months of available data)
-    const currentQuery = `
-      SELECT 
-        COUNT(*) as total_sales,
-        AVG(ps.sale_price) as avg_price,
-        AVG(ps.days_on_market) as avg_days_on_market,
-        SUM(ps.sale_price) as total_sales_value,
-        MAX(ps.sale_date) as latest_sale_date,
-        MIN(ps.sale_date) as earliest_sale_date
-      FROM property_sales ps
-      WHERE ps.region_id = ?
-        ${housingTypeFilter}
-        AND ps.sale_date >= (
-          SELECT DATE_SUB(MAX(sale_date), INTERVAL 90 DAY) 
-          FROM property_sales 
-          WHERE region_id = ?
-        )
-    `;
+    const metrics = result.rows[0];
 
-    // Get previous period metrics for comparison (3 months before current period)
-    const previousQuery = `
-      SELECT 
-        COUNT(*) as total_sales,
-        AVG(ps.sale_price) as avg_price,
-        AVG(ps.days_on_market) as avg_days_on_market
-      FROM property_sales ps
-      WHERE ps.region_id = ?
-        ${housingTypeFilter}
-        AND ps.sale_date >= (
-          SELECT DATE_SUB(MAX(sale_date), INTERVAL 180 DAY) 
-          FROM property_sales 
-          WHERE region_id = ?
-        )
-        AND ps.sale_date < (
-          SELECT DATE_SUB(MAX(sale_date), INTERVAL 90 DAY) 
-          FROM property_sales 
-          WHERE region_id = ?
-        )
-    `;
-
-    // Get active listings count
-    const inventoryQuery = `
-      SELECT COUNT(*) as active_listings
-      FROM active_listings al
-      WHERE al.region_id = ?
-        ${housingTypeId !== '1' ? 'AND al.housing_type_id = ?' : ''}
-    `;
-
-    const inventoryParams = housingTypeId === '1' ? [regionId] : [regionId, housingTypeId];
-
-    const [currentResult, previousResult, inventoryResult] = await Promise.all([
-      database.query(currentQuery, currentQueryParams),
-      database.query(previousQuery, previousQueryParams),
-      database.query(inventoryQuery, inventoryParams)
-    ]);
-
-    const current = currentResult.rows[0];
-    const previous = previousResult.rows[0];
-    const inventory = inventoryResult.rows[0];
-
-    // Calculate percentage changes
-    const calculateChange = (current, previous) => {
-      if (!previous || previous === 0) return 0;
-      return ((current - previous) / previous * 100);
-    };
-
-    const metrics = {
-      avg_price: current.avg_price || 0,
-      price_change_pct: calculateChange(current.avg_price, previous.avg_price),
-      total_sales: current.total_sales || 0,
-      sales_change_pct: calculateChange(current.total_sales, previous.total_sales),
-      avg_days_on_market: current.avg_days_on_market || 0,
-      days_change_pct: calculateChange(previous.avg_days_on_market, current.avg_days_on_market), // Inverted because lower is better
-      active_listings: inventory.active_listings || 0,
-      inventory_change_pct: 0, // Would need additional query for previous inventory
-      total_sales_value: current.total_sales_value || 0
+    // Format the response to match frontend expectations
+    const formattedMetrics = {
+      avg_price: parseFloat(metrics.avg_price) || 0,
+      price_change_pct: parseFloat(metrics.price_change_pct) || 0,
+      total_sales: parseInt(metrics.total_sales) || 0,
+      sales_change_pct: parseFloat(metrics.sales_change_pct) || 0,
+      avg_days_on_market: parseInt(metrics.avg_days_on_market) || 0,
+      days_change_pct: parseFloat(metrics.days_change_pct) || 0,
+      active_listings: parseInt(metrics.inventory_count) || 0,
+      inventory_change_pct: parseFloat(metrics.inventory_change_pct) || 0
     };
 
     res.json({
       success: true,
-      data: metrics,
+      data: formattedMetrics,
       metadata: {
         regionId: parseInt(regionId),
         housingTypeId: parseInt(housingTypeId),
         period,
+        dataDate: metrics.data_date,
         generatedAt: new Date().toISOString()
       }
     });
@@ -136,158 +91,6 @@ router.get('/market-summary', [
     logger.error('Error fetching market summary:', error);
     res.status(500).json({
       error: 'Failed to fetch market summary',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/market-overview
- * Get comprehensive market overview across all regions
- */
-router.get('/market-overview', async (req, res) => {
-  try {
-    // Get market health scores
-    const { rows: marketHealth } = await database.query(`
-      SELECT 
-        r.name as region_name,
-        mh.market_temperature,
-        mh.overall_health_score,
-        mh.market_status,
-        mh.price_to_income_ratio,
-        mh.months_of_inventory,
-        mh.date
-      FROM market_health mh
-      JOIN regions r ON mh.region_id = r.id
-      WHERE mh.date = (SELECT MAX(date) FROM market_health WHERE region_id = mh.region_id)
-      ORDER BY r.name
-    `);
-
-    // Get housing distribution summary
-    const { rows: housingDistribution } = await database.query(`
-      SELECT 
-        r.name as region_name,
-        ht.name as housing_type,
-        hd.total_stock_count,
-        hd.market_share_pct,
-        hd.avg_price
-      FROM housing_distribution hd
-      JOIN regions r ON hd.region_id = r.id
-      JOIN housing_types ht ON hd.housing_type_id = ht.id
-      WHERE ht.name != 'All Types'
-      ORDER BY r.name, hd.market_share_pct DESC
-    `);
-
-    // Get recent price trends summary
-    const { rows: priceTrends } = await database.query(`
-      SELECT 
-        r.name as region_name,
-        ht.name as housing_type,
-        pt.avg_price,
-        pt.yoy_change_pct,
-        pt.month
-      FROM price_trends pt
-      JOIN regions r ON pt.region_id = r.id
-      JOIN housing_types ht ON pt.housing_type_id = ht.id
-      WHERE pt.month = (SELECT MAX(month) FROM price_trends WHERE region_id = pt.region_id AND housing_type_id = pt.housing_type_id)
-      ORDER BY r.name, pt.avg_price DESC
-    `);
-
-    res.json({
-      success: true,
-      data: {
-        marketHealth,
-        housingDistribution,
-        priceTrends
-      },
-      metadata: {
-        generatedAt: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching market overview:', error);
-    res.status(500).json({
-      error: 'Failed to fetch market overview',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/price-analysis/:regionId
- * Get detailed price analysis for a region
- */
-router.get('/price-analysis/:regionId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  query('months').optional().isInt({ min: 1, max: 24 }).withMessage('Months must be between 1 and 24'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId } = req.params;
-    const { months = 12 } = req.query;
-
-    // Price trends by housing type
-    const trendsQuery = `
-      SELECT 
-        DATE_FORMAT(ps.sale_date, '%Y-%m') as month,
-        ht.name as housing_type,
-        COUNT(*) as sales_count,
-        AVG(ps.sale_price) as avg_price,
-        AVG(ps.price_per_sqft) as avg_price_per_sqft,
-        MIN(ps.sale_price) as min_price,
-        MAX(ps.sale_price) as max_price,
-        STDDEV(ps.sale_price) as price_stddev
-      FROM property_sales ps
-      JOIN housing_types ht ON ps.housing_type_id = ht.id
-      WHERE ps.region_id = ?
-        AND ps.sale_date >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
-      GROUP BY DATE_FORMAT(ps.sale_date, '%Y-%m'), ht.name
-      ORDER BY month, ht.name
-    `;
-
-    // Price distribution analysis
-    const distributionQuery = `
-      SELECT 
-        ht.name as housing_type,
-        COUNT(*) as total_sales,
-        AVG(ps.sale_price) as avg_price,
-        MIN(ps.sale_price) as min_price,
-        MAX(ps.sale_price) as max_price,
-        STDDEV(ps.sale_price) as price_stddev,
-        SUM(CASE WHEN ps.sale_price < 500000 THEN 1 ELSE 0 END) as under_500k,
-        SUM(CASE WHEN ps.sale_price BETWEEN 500000 AND 999999 THEN 1 ELSE 0 END) as between_500k_1m,
-        SUM(CASE WHEN ps.sale_price BETWEEN 1000000 AND 1499999 THEN 1 ELSE 0 END) as between_1m_1_5m,
-        SUM(CASE WHEN ps.sale_price BETWEEN 1500000 AND 1999999 THEN 1 ELSE 0 END) as between_1_5m_2m,
-        SUM(CASE WHEN ps.sale_price >= 2000000 THEN 1 ELSE 0 END) as over_2m
-      FROM property_sales ps
-      JOIN housing_types ht ON ps.housing_type_id = ht.id
-      WHERE ps.region_id = ?
-        AND ps.sale_date >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
-      GROUP BY ht.name
-      ORDER BY avg_price DESC
-    `;
-
-    const [trendsResult, distributionResult] = await Promise.all([
-      database.query(trendsQuery, [regionId, months]),
-      database.query(distributionQuery, [regionId, months])
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        trends: trendsResult.rows,
-        distribution: distributionResult.rows
-      },
-      metadata: {
-        regionId: parseInt(regionId),
-        months: parseInt(months),
-        generatedAt: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching price analysis:', error);
-    res.status(500).json({
-      error: 'Failed to fetch price analysis',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
@@ -443,286 +246,6 @@ router.get('/comparative-analysis', [
     logger.error('Error fetching comparative analysis:', error);
     res.status(500).json({
       error: 'Failed to fetch comparative analysis',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/affordability/:regionId
- * Get affordability analysis for a region
- */
-router.get('/affordability/:regionId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId } = req.params;
-
-    const query = `
-      SELECT 
-        r.name as region_name,
-        ad.median_household_income,
-        ad.avg_household_income,
-        ad.housing_affordability_index,
-        ad.price_to_income_ratio,
-        ad.mortgage_payment_to_income,
-        ad.first_time_buyer_index,
-        ad.rental_affordability_index,
-        ad.unemployment_rate,
-        ad.population_growth_rate,
-        AVG(ps.sale_price) as current_avg_price,
-        AVG(rd.monthly_rent) as current_avg_rent
-      FROM regions r
-      LEFT JOIN affordability_data ad ON r.id = ad.region_id
-      LEFT JOIN property_sales ps ON r.id = ps.region_id 
-        AND ps.sale_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-      LEFT JOIN rental_data rd ON r.id = rd.region_id
-        AND rd.listing_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-      WHERE r.id = ?
-      GROUP BY r.id, r.name, ad.median_household_income, ad.avg_household_income,
-               ad.housing_affordability_index, ad.price_to_income_ratio, 
-               ad.mortgage_payment_to_income, ad.first_time_buyer_index,
-               ad.rental_affordability_index, ad.unemployment_rate, ad.population_growth_rate
-    `;
-
-    const { rows } = await database.query(query, [regionId]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({
-        error: 'No affordability data found for specified region'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: rows[0],
-      metadata: {
-        regionId: parseInt(regionId),
-        generatedAt: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching affordability analysis:', error);
-    res.status(500).json({
-      error: 'Failed to fetch affordability analysis',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/housing-distribution/:regionId
- * Get housing type distribution for a region
- */
-router.get('/housing-distribution/:regionId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId } = req.params;
-
-    const { rows } = await database.query(`
-      SELECT 
-        hd.region_id,
-        r.name as region_name,
-        ht.name as housing_type,
-        ht.code as housing_type_code,
-        hd.total_stock_count,
-        hd.market_share_pct,
-        hd.avg_price,
-        hd.updated_at
-      FROM housing_distribution hd
-      JOIN regions r ON hd.region_id = r.id
-      JOIN housing_types ht ON hd.housing_type_id = ht.id
-      WHERE hd.region_id = ?
-      ORDER BY hd.market_share_pct DESC
-    `, [regionId]);
-
-    res.json({
-      success: true,
-      data: rows,
-      metadata: {
-        regionId: parseInt(regionId),
-        totalTypes: rows.length
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching housing distribution:', error);
-    res.status(500).json({
-      error: 'Failed to fetch housing distribution',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/new-vs-resale/:regionId
- * Get new vs resale market comparison
- */
-router.get('/new-vs-resale/:regionId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  query('months').optional().isInt({ min: 1, max: 12 }).withMessage('Months must be between 1 and 12'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId } = req.params;
-    const { months = 3 } = req.query;
-
-    const { rows } = await database.query(`
-      SELECT 
-        nvr.month,
-        r.name as region_name,
-        ht.name as housing_type,
-        nvr.new_units_sold,
-        nvr.resale_units_sold,
-        nvr.new_avg_price,
-        nvr.resale_avg_price,
-        nvr.new_price_premium_pct,
-        (nvr.new_units_sold + nvr.resale_units_sold) as total_units_sold
-      FROM new_vs_resale nvr
-      JOIN regions r ON nvr.region_id = r.id
-      JOIN housing_types ht ON nvr.housing_type_id = ht.id
-      WHERE nvr.region_id = ?
-        AND nvr.month >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
-      ORDER BY nvr.month DESC, ht.name
-    `, [regionId, months]);
-
-    res.json({
-      success: true,
-      data: rows,
-      metadata: {
-        regionId: parseInt(regionId),
-        months: parseInt(months),
-        dataPoints: rows.length
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching new vs resale data:', error);
-    res.status(500).json({
-      error: 'Failed to fetch new vs resale data',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/rental-overview/:regionId
- * Get rental market overview
- */
-router.get('/rental-overview/:regionId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId } = req.params;
-
-    // Get latest rental metrics
-    const { rows: rentalMetrics } = await database.query(`
-      SELECT 
-        r.name as region_name,
-        bt.name as bedroom_type,
-        rm.avg_rent,
-        rm.median_rent,
-        rm.vacancy_rate_pct,
-        rm.yoy_growth_pct,
-        rm.total_rental_units,
-        rm.available_units,
-        rm.month
-      FROM rental_metrics rm
-      JOIN regions r ON rm.region_id = r.id
-      JOIN bedroom_types bt ON rm.bedroom_type_id = bt.id
-      WHERE rm.region_id = ?
-        AND rm.month = (SELECT MAX(month) FROM rental_metrics WHERE region_id = rm.region_id)
-      ORDER BY bt.name
-    `, [regionId]);
-
-    // Get rental stock summary
-    const { rows: stockSummary } = await database.query(`
-      SELECT 
-        r.name as region_name,
-        rss.year,
-        rss.overall_vacancy_pct,
-        rss.total_pbr_units,
-        rss.new_pbr_units,
-        rss.rented_condos_count,
-        rss.total_rental_stock
-      FROM rental_stock_summary rss
-      JOIN regions r ON rss.region_id = r.id
-      WHERE rss.region_id = ?
-        AND rss.year = (SELECT MAX(year) FROM rental_stock_summary WHERE region_id = rss.region_id)
-    `, [regionId]);
-
-    res.json({
-      success: true,
-      data: {
-        rentalMetrics,
-        stockSummary: stockSummary[0] || null
-      },
-      metadata: {
-        regionId: parseInt(regionId),
-        generatedAt: new Date().toISOString()
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching rental overview:', error);
-    res.status(500).json({
-      error: 'Failed to fetch rental overview',
-      message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-/**
- * GET /api/analytics/price-trends/:regionId/:housingTypeId
- * Get detailed price trends with historical data
- */
-router.get('/price-trends/:regionId/:housingTypeId', [
-  param('regionId').isInt({ min: 1 }).withMessage('Region ID must be a positive integer'),
-  param('housingTypeId').isInt({ min: 1 }).withMessage('Housing type ID must be a positive integer'),
-  query('months').optional().isInt({ min: 1, max: 24 }).withMessage('Months must be between 1 and 24'),
-  validateRequest
-], async (req, res) => {
-  try {
-    const { regionId, housingTypeId } = req.params;
-    const { months = 12 } = req.query;
-
-    const { rows } = await database.query(`
-      SELECT 
-        pt.month,
-        pt.avg_price,
-        pt.median_price,
-        pt.min_price,
-        pt.max_price,
-        pt.sales_count,
-        pt.mom_change_pct,
-        pt.yoy_change_pct,
-        pt.price_per_sqft,
-        r.name as region_name,
-        ht.name as housing_type_name
-      FROM price_trends pt
-      JOIN regions r ON pt.region_id = r.id
-      JOIN housing_types ht ON pt.housing_type_id = ht.id
-      WHERE pt.region_id = ? 
-        AND pt.housing_type_id = ?
-        AND pt.month >= DATE_SUB(CURDATE(), INTERVAL ? MONTH)
-      ORDER BY pt.month ASC
-    `, [regionId, housingTypeId, months]);
-
-    res.json({
-      success: true,
-      data: rows,
-      metadata: {
-        regionId: parseInt(regionId),
-        housingTypeId: parseInt(housingTypeId),
-        months: parseInt(months),
-        dataPoints: rows.length
-      }
-    });
-  } catch (error) {
-    logger.error('Error fetching price trends:', error);
-    res.status(500).json({
-      error: 'Failed to fetch price trends',
       message: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }
