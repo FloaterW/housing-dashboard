@@ -183,7 +183,7 @@ function AffordabilityThresholds({ selectedRegion = 'Peel Region' }) {
       ) : activeTab === 'heatmap' ? (
         <AffordabilityGapHeatmap />
       ) : (
-        <HomeownershipTrendsChart />
+        <HomeownershipTrendsChart selectedRegion={selectedRegion} />
       )}
     </div>
   );

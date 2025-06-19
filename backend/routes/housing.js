@@ -2,6 +2,8 @@ const express = require('express');
 const { query, param, validationResult } = require('express-validator');
 const database = require('../config/database');
 const logger = require('../config/logger');
+const { optionalAuth } = require('../middleware/auth');
+const { handleValidationErrors, validationSets } = require('../middleware/validation');
 
 const router = express.Router();
 

@@ -25,7 +25,14 @@
     "lint": "eslint src --ext .js,.jsx",
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "format": "prettier --write src/**/*.{js,jsx,css,md}",
-    "prepare": "husky"
+    "prepare": "husky",
+    "setup": "node setup.js",
+    "dev": "npm start",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "full:dev": "concurrently \"npm run backend:dev\" \"npm run dev\"",
+    "clean": "rm -rf build node_modules backend/node_modules",
+    "fresh-install": "npm run clean && npm install && cd backend && npm install"
   },
   "eslintConfig": {
     "extends": [
@@ -60,6 +67,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
     "eslint-config-prettier": "^10.1.5",
     "gh-pages": "^6.3.0",
     "husky": "^9.1.7",

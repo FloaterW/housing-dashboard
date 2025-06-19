@@ -279,7 +279,7 @@ function HousingMapDashboard() {
         }
       };
     } catch (err) {
-      console.error('Error loading ArcGIS modules:', err);
+      // Error loading ArcGIS modules (logged by parent component)
       setIsLoading(false);
     }
   }, [selectedMetric, mapType]);

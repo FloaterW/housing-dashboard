@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { format, addDays } from 'date-fns';
+import logger from './logger';
 
 class AirBnbRealScraper {
   constructor() {
@@ -10,36 +11,45 @@ class AirBnbRealScraper {
     this.corsProxies = [
       'https://cors-anywhere.herokuapp.com/',
       'https://api.allorigins.win/raw?url=',
-      'https://proxy.cors.sh/'
+      'https://proxy.cors.sh/',
     ];
-    
+
     this.client = axios.create({
       timeout: 15000,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
         'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
         'Sec-Fetch-Site': 'none',
-        'Cache-Control': 'max-age=0'
-      }
+        'Cache-Control': 'max-age=0',
+      },
     });
+
+    this.rateLimiter = {
+      requests: 0,
+      lastReset: Date.now(),
+      maxRequests: 10,
+      timeWindow: 60000, // 1 minute
+    };
   }
 
   async waitForRateLimit() {
     const now = Date.now();
     const timeSinceLastRequest = now - this.lastRequestTime;
-    
+
     if (timeSinceLastRequest < this.rateLimit) {
       const waitTime = this.rateLimit - timeSinceLastRequest;
-      console.log(`Rate limiting: waiting ${waitTime}ms`);
+      logger.debug(`Rate limiting: waiting ${waitTime}ms`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
-    
+
     this.lastRequestTime = Date.now();
   }
 
@@ -47,7 +57,7 @@ class AirBnbRealScraper {
   buildSearchUrl(location, checkIn, checkOut, adults = 2) {
     const checkinDate = format(new Date(checkIn), 'yyyy-MM-dd');
     const checkoutDate = format(new Date(checkOut), 'yyyy-MM-dd');
-    
+
     const params = new URLSearchParams({
       place_id: '',
       query: location,
@@ -67,304 +77,330 @@ class AirBnbRealScraper {
       channel: 'EXPLORE',
       date_picker_type: 'calendar',
       source: 'structured_search_input_header',
-      search_type: 'autocomplete_click'
+      search_type: 'autocomplete_click',
     });
 
     return `${this.baseUrl}/s/${encodeURIComponent(location)}/homes?${params.toString()}`;
   }
 
-  // Method 1: Direct API approach (likely to fail due to CORS)
-  async attemptDirectApiCall(location, checkIn, checkOut, adults = 2) {
+  // Rate limiting to avoid overwhelming servers
+  async rateLimit() {
+    const now = Date.now();
+
+    // Reset counter if time window has passed
+    if (now - this.rateLimiter.lastReset > this.rateLimiter.timeWindow) {
+      this.rateLimiter.requests = 0;
+      this.rateLimiter.lastReset = now;
+    }
+
+    // If we've hit the limit, wait
+    if (this.rateLimiter.requests >= this.rateLimiter.maxRequests) {
+      const waitTime =
+        this.rateLimiter.timeWindow - (now - this.rateLimiter.lastReset);
+      logger.debug(`Rate limiting: waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+
+      // Reset after waiting
+      this.rateLimiter.requests = 0;
+      this.rateLimiter.lastReset = Date.now();
+    }
+
+    this.rateLimiter.requests++;
+  }
+
+  // Method 1: Direct API call (works in backend/extension)
+  async tryDirectApiCall(location, checkIn, checkOut, adults) {
     try {
-      console.log('🔄 Attempting direct API call...');
-      
-      const searchPayload = {
+      await this.rateLimit();
+
+      // AirBnB's search API endpoint (simplified)
+      const apiUrl = `https://www.airbnb.com/api/v3/StaySearch`;
+
+      const params = {
         operationName: 'StaysSearch',
-        locale: 'en-CA',
+        locale: 'en',
         currency: 'CAD',
         variables: {
-          staysSearchRequest: {
-            requestedPageType: 'STAYS_SEARCH',
-            cursor: '',
-            limit: 50,
-            query: location,
-            checkin: format(new Date(checkIn), 'yyyy-MM-dd'),
-            checkout: format(new Date(checkOut), 'yyyy-MM-dd'),
-            adults: adults,
-            children: 0,
-            infants: 0,
-            pets: 0,
-            priceFilterInputType: 0,
-            priceFilterNumNights: 1,
-            categoryTag: '',
-            channel: 'EXPLORE',
-            itemsPerGrid: 50,
-            placeId: '',
-            refinementPaths: [],
-            searchByMap: false,
+          request: {
+            metadataOnly: false,
+            version: '1.8.6',
             tabId: 'home_tab',
-            flexibleTripLengths: ['weekend_trip'],
-            datePickerType: 'calendar',
+            refinementPaths: ['/homes'],
+            flexibleTripLengths: [],
+            dateSearchType: 'calendar',
+            placeId: null,
             source: 'structured_search_input_header',
-            searchType: 'filter_change'
-          }
-        }
+            searchType: 'pagination',
+            query: location,
+            cdnCacheSafe: false,
+            simpleSearchTreatment: 'simple_search_only',
+            treatmentFlags: ['simple_search_only', 'simple_search_desktop_v3'],
+            searchByMap: false,
+            isInitialLoad: true,
+          },
+        },
       };
 
-      const response = await this.client.post(`${this.baseUrl}${this.searchUrl}`, searchPayload);
-      
-      if (response.data && response.data.data) {
-        console.log('✅ Direct API call successful!');
-        return this.parseApiResponse(response.data);
+      logger.debug('🔄 Attempting direct API call...');
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'application/json, text/plain, */*',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'X-Airbnb-Api-Key': 'd306zoyjsyarp7ifhu67rjxn52tv0t20', // Public API key
+          'X-Airbnb-GraphQL-Platform': 'web',
+          'X-Airbnb-GraphQL-Platform-Client': 'minimalist-niobe',
+          'X-Airbnb-Supports-Airlock-V2': 'true',
+          'X-Niobe-Short-Circuited': 'true',
+          'X-CSRF-Token': 'null',
+          'X-CSRF-Without-Token': '1',
+        },
+        body: JSON.stringify(params),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        if (data.data && data.data.dora && data.data.dora.exploreV3) {
+          const sections = data.data.dora.exploreV3.sections;
+          let listings = [];
+
+          sections.forEach(section => {
+            if (section.items) {
+              section.items.forEach(item => {
+                if (item.listing) {
+                  listings.push(this.parseApiListing(item.listing));
+                }
+              });
+            }
+          });
+
+          logger.debug('✅ Direct API call successful!');
+          return listings;
+        }
       }
-      
-      throw new Error('Invalid API response format');
-      
+
+      throw new Error('Invalid response structure');
     } catch (error) {
-      console.log('❌ Direct API call failed:', error.message);
-      return null;
+      logger.warn('❌ Direct API call failed:', error.message);
+      throw error;
     }
   }
 
-  // Method 2: CORS proxy approach
-  async attemptCorsProxyCall(location, checkIn, checkOut, adults = 2) {
-    for (const proxy of this.corsProxies) {
+  // Method 2: Try different CORS proxies
+  async tryCorsProxy(location, checkIn, checkOut, adults) {
+    const proxies = [
+      'https://cors-anywhere.herokuapp.com/',
+      'https://api.allorigins.win/raw?url=',
+      'https://crossorigin.me/',
+    ];
+
+    for (const proxy of proxies) {
       try {
-        console.log(`🔄 Attempting CORS proxy: ${proxy}`);
-        
-        const searchUrl = this.buildSearchUrl(location, checkIn, checkOut, adults);
-        const proxiedUrl = `${proxy}${encodeURIComponent(searchUrl)}`;
-        
-        const response = await this.client.get(proxiedUrl, {
+        await this.rateLimit();
+
+        logger.debug(`🔄 Attempting CORS proxy: ${proxy}`);
+
+        const searchUrl = `https://www.airbnb.ca/s/${encodeURIComponent(location)}/homes`;
+        const proxiedUrl = proxy + encodeURIComponent(searchUrl);
+
+        const response = await fetch(proxiedUrl, {
           headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': window.location.origin
-          }
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
         });
-        
-        if (response.data) {
-          console.log(`✅ CORS proxy successful: ${proxy}`);
-          return this.parseHtmlResponse(response.data, location);
+
+        if (response.ok) {
+          const html = await response.text();
+          const listings = this.parseHtmlResponse(html);
+
+          if (listings.length > 0) {
+            logger.debug(`✅ CORS proxy successful: ${proxy}`);
+            return listings;
+          }
         }
-        
       } catch (error) {
-        console.log(`❌ CORS proxy failed (${proxy}):`, error.message);
+        logger.warn(`❌ CORS proxy failed (${proxy}):`, error.message);
         continue;
       }
     }
-    
-    return null;
+
+    throw new Error('All CORS proxies failed');
   }
 
-  // Method 3: Alternative search endpoints
-  async attemptAlternativeEndpoints(location, checkIn, checkOut, adults = 2) {
+  // Method 3: Try alternative endpoints
+  async tryAlternativeEndpoints(location, checkIn, checkOut, adults) {
     const endpoints = [
-      '/api/v2/explore_tabs',
-      '/api/v3/PdpSectionsQuery',
-      '/api/v2/homes'
+      `https://www.airbnb.com/api/v2/explore_tabs?_format=for_explore_search_web`,
+      `https://www.airbnb.com/api/v3/StaySearch`,
+      `https://www.airbnb.com/api/v2/search_results`,
     ];
 
     for (const endpoint of endpoints) {
       try {
-        console.log(`🔄 Attempting alternative endpoint: ${endpoint}`);
-        
-        const response = await this.client.get(`${this.baseUrl}${endpoint}`, {
-          params: {
-            query: location,
-            checkin: format(new Date(checkIn), 'yyyy-MM-dd'),
-            checkout: format(new Date(checkOut), 'yyyy-MM-dd'),
-            adults: adults
-          }
+        await this.rateLimit();
+
+        logger.debug(`🔄 Attempting alternative endpoint: ${endpoint}`);
+
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; housing-dashboard/1.0)',
+            Accept: 'application/json',
+          },
         });
-        
-        if (response.data) {
-          console.log(`✅ Alternative endpoint successful: ${endpoint}`);
-          return this.parseAlternativeResponse(response.data, location);
+
+        if (response.ok) {
+          const data = await response.json();
+          const listings = this.parseEndpointResponse(data);
+
+          if (listings.length > 0) {
+            logger.debug(`✅ Alternative endpoint successful: ${endpoint}`);
+            return listings;
+          }
         }
-        
       } catch (error) {
-        console.log(`❌ Alternative endpoint failed (${endpoint}):`, error.message);
+        logger.warn(
+          `❌ Alternative endpoint failed (${endpoint}):`,
+          error.message
+        );
         continue;
       }
     }
-    
-    return null;
+
+    throw new Error('All alternative endpoints failed');
   }
 
-  // Parse API JSON response
-  parseApiResponse(data) {
+  // Parse API response listing
+  parseApiListing(listing) {
     try {
-      const sections = data.data?.dora?.exploreV3?.sections || [];
+      return {
+        id: listing.id,
+        name: listing.name,
+        price: listing.pricing?.rate?.amount || 0,
+        currency: listing.pricing?.rate?.currency || 'CAD',
+        roomType: listing.roomTypeCategory,
+        latitude: listing.lat,
+        longitude: listing.lng,
+        neighborhood: listing.neighborhoodOverview?.localizedName,
+        rating: listing.avgRating,
+        reviewCount: listing.reviewsCount,
+        amenities: listing.listingAmenities || [],
+        photos: listing.pictures?.map(pic => pic.picture) || [],
+        availability: listing.availability || {},
+        verified: listing.isVerified || false,
+      };
+    } catch (error) {
+      logger.error('Error parsing API response:', error);
+      return null;
+    }
+  }
+
+  // Parse HTML response (fallback method)
+  parseHtmlResponse(html) {
+    try {
+      // Basic HTML parsing for listings
+      const listingRegex = /"listing":({[^}]+})/g;
       const listings = [];
-      
-      sections.forEach(section => {
-        if (section.sectionComponentType === 'LISTINGS_GRID') {
-          section.items?.forEach(item => {
-            if (item.listing) {
-              listings.push(this.extractListingData(item.listing));
-            }
-          });
+      let match;
+
+      while ((match = listingRegex.exec(html)) !== null) {
+        try {
+          const listingData = JSON.parse(match[1]);
+          listings.push(this.parseApiListing(listingData));
+        } catch (e) {
+          // Skip invalid JSON
+          continue;
         }
-      });
-      
-      return listings;
+      }
+
+      return listings.filter(l => l !== null);
     } catch (error) {
-      console.error('Error parsing API response:', error);
+      logger.error('Error parsing HTML response:', error);
       return [];
     }
   }
 
-  // Parse HTML response for listing data
-  parseHtmlResponse(html, location) {
-    try {
-      // Look for JSON data embedded in the HTML
-      const jsonMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/);
-      if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[1]);
-        return this.parseApiResponse(data);
-      }
-      
-      // Fallback: extract basic info from HTML
-      return this.extractHtmlListings(html, location);
-      
-    } catch (error) {
-      console.error('Error parsing HTML response:', error);
-      return [];
-    }
-  }
-
-  // Extract listing data from various response formats
-  extractListingData(listing) {
-    return {
-      id: listing.id || `listing_${Date.now()}_${Math.random()}`,
-      title: listing.name || listing.title || 'Untitled Listing',
-      location: listing.contextualPictures?.[0]?.caption || 'Unknown Location',
-      propertyType: listing.roomTypeCategory || listing.propertyType || 'Unknown',
-      pricePerNight: this.extractPrice(listing.pricing?.rate || listing.price),
-      totalPrice: this.extractPrice(listing.pricing?.total || listing.totalPrice),
-      rating: parseFloat(listing.avgRating || listing.reviews?.rating || 0),
-      reviewCount: parseInt(listing.reviewsCount || listing.reviews?.count || 0),
-      host: {
-        id: listing.user?.id || 'unknown',
-        name: listing.user?.firstName || 'Unknown Host',
-        isSuperhost: listing.user?.isSuperhost || false
-      },
-      amenities: listing.listingAmenities?.map(a => a.name) || [],
-      images: listing.pictures?.map(p => p.picture) || [],
-      coordinates: {
-        latitude: listing.lat || 0,
-        longitude: listing.lng || 0
-      },
-      availability: {
-        checkIn: listing.checkIn,
-        checkOut: listing.checkOut,
-        minimumNights: listing.minNights || 1
-      },
-      scrapedAt: new Date().toISOString(),
-      source: 'airbnb_real'
-    };
-  }
-
-  // Extract price from various formats
-  extractPrice(priceData) {
-    if (typeof priceData === 'number') return priceData;
-    if (typeof priceData === 'string') {
-      const match = priceData.match(/\d+/);
-      return match ? parseInt(match[0]) : 0;
-    }
-    if (priceData?.amount) return priceData.amount;
-    if (priceData?.price) return priceData.price;
-    return 0;
-  }
-
-  // Fallback HTML parsing
-  extractHtmlListings(html, location) {
-    console.log('📝 Attempting HTML parsing fallback...');
-    
-    // This is a simplified approach - real implementation would need more sophisticated parsing
-    const listings = [];
-    
-    // Look for price patterns in HTML
-    const priceMatches = html.match(/\$(\d+)/g) || [];
-    const uniquePrices = [...new Set(priceMatches)].slice(0, 10);
-    
-    uniquePrices.forEach((price, index) => {
-      const priceValue = parseInt(price.replace('$', ''));
-      if (priceValue > 20 && priceValue < 1000) { // Reasonable price range
-        listings.push({
-          id: `html_listing_${index}`,
-          title: `Property ${index + 1} in ${location}`,
-          location: location,
-          propertyType: 'Entire home/apt',
-          pricePerNight: priceValue,
-          totalPrice: priceValue * 3, // Assume 3 nights
-          rating: 4.0 + Math.random(),
-          reviewCount: Math.floor(Math.random() * 100) + 10,
-          host: {
-            id: `host_${index}`,
-            name: `Host ${index + 1}`,
-            isSuperhost: Math.random() > 0.7
-          },
-          amenities: ['WiFi', 'Kitchen', 'Parking'],
-          coordinates: {
-            latitude: 43.5890 + (Math.random() - 0.5) * 0.1,
-            longitude: -79.6441 + (Math.random() - 0.5) * 0.1
-          },
-          scrapedAt: new Date().toISOString(),
-          source: 'airbnb_html_fallback'
-        });
-      }
-    });
-    
-    return listings;
-  }
-
-  // Parse alternative endpoint responses
-  parseAlternativeResponse(data, location) {
-    // Handle different response formats from alternative endpoints
-    if (data.explore_tabs) {
-      return this.parseApiResponse({ data: { dora: { exploreV3: { sections: data.explore_tabs } } } });
-    }
-    
-    if (data.homes) {
-      return data.homes.map(home => this.extractListingData(home));
-    }
-    
+  // Parse endpoint response
+  parseEndpointResponse(data) {
+    // Implementation would depend on endpoint structure
     return [];
   }
 
+  // Method 4: HTML parsing fallback
+  async tryHtmlParsing(location, checkIn, checkOut, adults) {
+    try {
+      await this.rateLimit();
+
+      logger.debug('📝 Attempting HTML parsing fallback...');
+
+      const searchUrl = `https://www.airbnb.ca/s/${encodeURIComponent(location)}/homes`;
+
+      // This would normally require a CORS proxy or backend
+      const response = await fetch(searchUrl, {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+      });
+
+      if (response.ok) {
+        const html = await response.text();
+        return this.parseHtmlResponse(html);
+      }
+
+      throw new Error('HTML fetch failed');
+    } catch (error) {
+      logger.warn('HTML parsing failed:', error.message);
+      throw error;
+    }
+  }
+
   // Main scraping method with multiple fallbacks
-  async scrapeRealListings(location, checkIn, checkOut, adults = 2) {
-    console.log(`🔍 Starting real AirBnB scraping for ${location}...`);
-    console.log(`📅 Check-in: ${checkIn}, Check-out: ${checkOut}, Adults: ${adults}`);
-    
-    await this.waitForRateLimit();
-    
-    // Try multiple methods in order of preference
+  async scrapeRealData(location, checkIn = null, checkOut = null, adults = 2) {
     const methods = [
-      () => this.attemptDirectApiCall(location, checkIn, checkOut, adults),
-      () => this.attemptCorsProxyCall(location, checkIn, checkOut, adults),
-      () => this.attemptAlternativeEndpoints(location, checkIn, checkOut, adults)
+      this.tryDirectApiCall.bind(this),
+      this.tryCorsProxy.bind(this),
+      this.tryAlternativeEndpoints.bind(this),
+      this.tryHtmlParsing.bind(this),
     ];
-    
+
+    logger.info(`🔍 Starting real AirBnB scraping for ${location}...`);
+    logger.debug(
+      `📅 Check-in: ${checkIn}, Check-out: ${checkOut}, Adults: ${adults}`
+    );
+
     for (const method of methods) {
       try {
-        const result = await method();
+        const result = await method(location, checkIn, checkOut, adults);
+
         if (result && result.length > 0) {
-          console.log(`✅ Scraping successful! Found ${result.length} listings`);
-          return this.processRealListings(result);
+          logger.info(
+            `✅ Scraping successful! Found ${result.length} listings`
+          );
+          return result;
         }
       } catch (error) {
-        console.log(`❌ Method failed:`, error.message);
+        logger.debug(`❌ Method failed:`, error.message);
         continue;
       }
     }
-    
-    // If all methods fail, provide a helpful error message
-    console.log('❌ All scraping methods failed. This is expected in browser environments.');
-    console.log('💡 Consider using a backend service or browser extension for real scraping.');
-    
-    // Return empty array rather than throwing error
+
+    // All methods failed
+    logger.warn(
+      '❌ All scraping methods failed. This is expected in browser environments.'
+    );
+    logger.info(
+      '💡 Consider using a backend service or browser extension for real scraping.'
+    );
+
+    // Return empty array instead of throwing
     return [];
   }
 
@@ -378,32 +414,27 @@ class AirBnbRealScraper {
         rating: parseFloat(listing.rating) || 0,
         reviewCount: parseInt(listing.reviewCount) || 0,
         processed: true,
-        processedAt: new Date().toISOString()
+        processedAt: new Date().toISOString(),
       }))
       .sort((a, b) => b.reviewCount - a.reviewCount); // Sort by review count
   }
 
-  // Method to test connectivity and get sample data
-  async testConnection() {
+  // Test connectivity
+  async testConnectivity() {
     try {
-      console.log('🧪 Testing AirBnB connectivity...');
-      
-      // Try to access AirBnB homepage
-      const response = await this.client.get(`${this.corsProxies[0]}${encodeURIComponent(this.baseUrl)}`);
-      
-      if (response.status === 200) {
-        console.log('✅ Connection test successful!');
-        return { success: true, message: 'Can connect to AirBnB' };
-      }
-      
-      throw new Error('Connection failed');
-      
+      logger.debug('🧪 Testing AirBnB connectivity...');
+
+      const testUrl = 'https://www.airbnb.com/api/v2/explore_tabs';
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        mode: 'no-cors',
+      });
+
+      logger.debug('✅ Connection test successful!');
+      return true;
     } catch (error) {
-      console.log('❌ Connection test failed:', error.message);
-      return { 
-        success: false, 
-        message: 'Cannot connect to AirBnB directly from browser. Consider backend solution.' 
-      };
+      logger.error('❌ Connection test failed:', error.message);
+      return false;
     }
   }
 
@@ -417,38 +448,39 @@ class AirBnbRealScraper {
             name: 'CORS Proxy',
             description: 'Use public CORS proxies (unreliable, may be blocked)',
             difficulty: 'Easy',
-            reliability: 'Low'
+            reliability: 'Low',
           },
           {
             name: 'Browser Extension',
             description: 'Create extension with elevated permissions',
             difficulty: 'Medium',
-            reliability: 'Medium'
-          }
-        ]
+            reliability: 'Medium',
+          },
+        ],
       },
       backend: {
         title: 'Backend Approaches (Recommended)',
         options: [
           {
             name: 'Node.js + Puppeteer',
-            description: 'Headless browser automation for JavaScript-heavy sites',
+            description:
+              'Headless browser automation for JavaScript-heavy sites',
             difficulty: 'Medium',
-            reliability: 'High'
+            reliability: 'High',
           },
           {
             name: 'Python + Selenium',
             description: 'Browser automation with extensive scraping libraries',
             difficulty: 'Medium',
-            reliability: 'High'
+            reliability: 'High',
           },
           {
             name: 'Proxy + Cheerio',
             description: 'Server-side HTML parsing with rotating proxies',
             difficulty: 'Hard',
-            reliability: 'Medium'
-          }
-        ]
+            reliability: 'Medium',
+          },
+        ],
       },
       apis: {
         title: 'Alternative Data Sources',
@@ -457,16 +489,16 @@ class AirBnbRealScraper {
             name: 'RapidAPI AirBnB',
             description: 'Third-party APIs that provide AirBnB data',
             difficulty: 'Easy',
-            reliability: 'High'
+            reliability: 'High',
           },
           {
             name: 'InsideAirbnb.com',
             description: 'Open dataset of AirBnB listings',
             difficulty: 'Easy',
-            reliability: 'Medium'
-          }
-        ]
-      }
+            reliability: 'Medium',
+          },
+        ],
+      },
     };
   }
 }

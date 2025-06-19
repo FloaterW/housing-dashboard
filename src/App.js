@@ -1,9 +1,17 @@
-import React, { useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import './App.css';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import ErrorBoundary from './components/ErrorBoundary';
-import ApiTest from './components/ApiTest';
+
+import {
+  AppProvider,
+  useSelectedRegion,
+  useSelectedHousingType,
+  useActiveView,
+  useAppActions,
+} from './context/AppContext';
+import logger from './utils/logger';
 
 // Lazy load components for code splitting
 const Dashboard = React.lazy(() => import('./components/Dashboard'));
@@ -23,22 +31,18 @@ const AirBnbDashboard = React.lazy(
   () => import('./components/AirBnbDashboard')
 );
 
-function App() {
-  const [selectedRegion, setSelectedRegion] = useState('Peel Region');
-  const [selectedHousingType, setSelectedHousingType] = useState('All Types');
-  const [activeView, setActiveView] = useState('dashboard');
+// Main App component using context
+function AppContent() {
+  const [selectedRegion] = useSelectedRegion();
+  const [selectedHousingType] = useSelectedHousingType();
+  const [activeView] = useActiveView();
+  const actions = useAppActions();
 
-  const handleRegionChange = region => {
-    setSelectedRegion(region);
-  };
-
-  const handleHousingTypeChange = type => {
-    setSelectedHousingType(type);
-  };
-
-  const handleNavigation = viewId => {
-    setActiveView(viewId);
-  };
+  // Log component mount
+  React.useEffect(() => {
+    logger.componentMount('App');
+    return () => logger.componentUnmount('App');
+  }, []);
 
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center h-64">
@@ -52,31 +56,46 @@ function App() {
       case 'affordability-thresholds':
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <AffordabilityThresholds selectedRegion={selectedRegion} />
+            <AffordabilityThresholds
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
           </Suspense>
         );
       case 'affordability-targets':
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <AffordabilityTargets />
+            <AffordabilityTargets
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
           </Suspense>
         );
       case 'rental':
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <RentalDashboard selectedRegion={selectedRegion} />
+            <RentalDashboard
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
           </Suspense>
         );
       case 'ownership':
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <OwnershipDashboard />
+            <OwnershipDashboard
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
           </Suspense>
         );
       case 'airbnb':
         return (
           <Suspense fallback={<LoadingSpinner />}>
-            <AirBnbDashboard />
+            <AirBnbDashboard
+              selectedRegion={selectedRegion}
+              selectedHousingType={selectedHousingType}
+            />
           </Suspense>
         );
       default:
@@ -98,22 +117,29 @@ function App() {
         <div className="flex">
           <div className="w-64 bg-white">
             <Sidebar
-              onRegionChange={handleRegionChange}
-              onHousingTypeChange={handleHousingTypeChange}
               selectedRegion={selectedRegion}
               selectedHousingType={selectedHousingType}
-              onNavigate={handleNavigation}
+              onRegionChange={actions.setSelectedRegion}
+              onHousingTypeChange={actions.setSelectedHousingType}
+              onNavigate={actions.setActiveView}
               activeView={activeView}
             />
           </div>
           <main className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-100">
-            <div className="max-w-7xl mx-auto">
-              {renderContent()}
-            </div>
+            <div className="max-w-7xl mx-auto">{renderContent()}</div>
           </main>
         </div>
       </div>
     </ErrorBoundary>
+  );
+}
+
+// Wrapper component with context provider
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
 

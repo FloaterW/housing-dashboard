@@ -7,6 +7,11 @@ require('dotenv').config();
 
 const database = require('./config/database');
 const logger = require('./config/logger');
+const cache = require('./services/cache');
+
+// Import middleware
+const { optionalAuth, authenticateApiKey } = require('./middleware/auth');
+const { sanitizeInput, handleValidationErrors } = require('./middleware/validation');
 
 // Import routes
 const housingRoutes = require('./routes/housing');
@@ -40,29 +45,32 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// CORS setup
+// CORS setup with environment-based configuration
+const allowedOrigins = process.env.CORS_ORIGINS ? 
+  process.env.CORS_ORIGINS.split(',') : 
+  ['http://localhost:3000', 'http://localhost:3001'];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'https://housing-dashboard.vercel.app',
-      'https://housing-dashboard.netlify.app'
-    ];
+    // Allow requests with no origin (mobile apps, etc.) only in development
+    if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
     
-    // Allow requests with no origin (mobile apps, etc.)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
-      logger.securityLogger('CORS_VIOLATION', { origin, userAgent: 'Unknown' });
+      logger.warn('CORS violation detected', { 
+        origin, 
+        userAgent: 'Unknown',
+        allowedOrigins 
+      });
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key'],
   maxAge: 86400 // 24 hours
 };
 
@@ -131,6 +139,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add input sanitization middleware
+app.use(sanitizeInput);
+
 // ====================================================================
 // ROUTES
 // ====================================================================
@@ -170,11 +181,11 @@ app.get('/api/test/sales', async (req, res) => {
 // Health check (before authentication)
 app.use('/api/health', healthRoutes);
 
-// API routes
-app.use('/api/housing', housingRoutes);
-app.use('/api/rental', rentalRoutes);
-app.use('/api/airbnb', airbnbRoutes);
-app.use('/api/analytics', analyticsRoutes);
+// API routes with optional authentication and caching
+app.use('/api/housing', optionalAuth, cache.middleware('housing', 300), housingRoutes);
+app.use('/api/rental', optionalAuth, cache.middleware('rental', 300), rentalRoutes);
+app.use('/api/airbnb', optionalAuth, cache.middleware('airbnb', 600), airbnbRoutes);
+app.use('/api/analytics', optionalAuth, cache.middleware('analytics', 180), analyticsRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -289,6 +300,14 @@ async function startServer() {
     // Connect to database
     await database.connect();
     logger.info('Database connection established');
+    
+    // Connect to cache (Redis) - optional, graceful degradation
+    try {
+      await cache.connect();
+      logger.info('Cache service connected');
+    } catch (error) {
+      logger.warn('Cache service unavailable, continuing without caching', error);
+    }
 
     // Start HTTP server
     const server = app.listen(PORT, () => {
@@ -310,9 +329,13 @@ async function startServer() {
         try {
           await database.disconnect();
           logger.info('Database connection closed');
+          
+          await cache.disconnect();
+          logger.info('Cache connection closed');
+          
           process.exit(0);
         } catch (error) {
-          logger.error('Error during database shutdown:', error);
+          logger.error('Error during shutdown:', error);
           process.exit(1);
         }
       });

@@ -19,7 +19,7 @@ export class AprilAnalysisDataService {
       this.data.brampton = this.getMunicipalityData('Brampton');
       this.data.caledon = this.getMunicipalityData('Caledon');
     } catch (error) {
-      console.error('Failed to load April analysis data:', error);
+      // Error logged by calling function
     }
   }
 

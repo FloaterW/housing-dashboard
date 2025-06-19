@@ -13,9 +13,18 @@ import {
 } from 'recharts';
 import { rentalYieldData } from '../../data/rental';
 
-function RentalYieldAnalysisChart() {
-  const [selectedRegion, setSelectedRegion] = useState('Peel Region');
+function RentalYieldAnalysisChart({ selectedRegion: propSelectedRegion }) {
+  const [selectedRegion, setSelectedRegion] = useState(
+    propSelectedRegion || 'Peel Region'
+  );
   const [viewMode, setViewMode] = useState('yields'); // 'yields', 'cashflow', 'comparison', 'roi'
+
+  // Sync with prop changes
+  React.useEffect(() => {
+    if (propSelectedRegion) {
+      setSelectedRegion(propSelectedRegion);
+    }
+  }, [propSelectedRegion]);
 
   const regions = Object.keys(rentalYieldData);
   const yieldData = rentalYieldData[selectedRegion] || [];

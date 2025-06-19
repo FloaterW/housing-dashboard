@@ -260,10 +260,10 @@ export const exportAllDashboardData = (
     exportToCSV(allData, filename);
 
     // Show success message
-    console.log('✅ Complete dashboard data exported successfully');
+    // Export completed successfully
     return true;
   } catch (error) {
-    console.error('❌ Error exporting dashboard data:', error);
+    // Export error (logged by calling function)
     return false;
   }
 };

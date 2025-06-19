@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   LineChart,
   Line,
@@ -14,133 +14,142 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import apiService from '../services/api';
+import {
+  airbnbHistoricalData,
+  airbnbCompetitiveData,
+  airbnbMetrics,
+  airbnbOpportunityAnalysis,
+  estimateAirBnbRevenue,
+} from '../data/airbnbData';
 import AirBnbRealScraper from '../utils/airbnbRealScraper';
+// import { aprilAnalysisService } from '../data/aprilAnalysisData'; // Unused
 import designSystem from '../styles/designSystem';
+import logger from '../utils/logger';
 
-const AirBnbDashboard = () => {
-  const [selectedRegion, setSelectedRegion] = useState('Mississauga');
+const AirBnbDashboard = ({ selectedRegion: propSelectedRegion }) => {
+  // Define valid regions first - memoized to prevent re-renders
+  const regions = React.useMemo(
+    () => ['Peel Region', 'Mississauga', 'Brampton', 'Caledon'],
+    []
+  );
+
+  // Initialize with a valid region
+  const getValidInitialRegion = () => {
+    if (propSelectedRegion && regions.includes(propSelectedRegion)) {
+      return propSelectedRegion;
+    }
+    // Check if propSelectedRegion has data in AirBnB dataset
+    if (
+      propSelectedRegion &&
+      airbnbHistoricalData.some(item => item.region === propSelectedRegion)
+    ) {
+      return propSelectedRegion;
+    }
+    return 'Peel Region'; // Default to Peel Region
+  };
+
+  const [selectedRegion, setSelectedRegion] = useState(getValidInitialRegion());
+
+  // Track if region change is from user interaction to prevent prop override
+  const userChangedRegion = React.useRef(false);
+
+  // Handler for manual region changes
+  const handleRegionChange = React.useCallback(
+    newRegion => {
+      logger.info('AirBnB Dashboard Manual Region Change', {
+        from: selectedRegion,
+        to: newRegion,
+        userInitiated: true,
+      });
+      userChangedRegion.current = true;
+      setSelectedRegion(newRegion);
+      // Reset the flag after a short delay to allow prop changes again
+      setTimeout(() => {
+        userChangedRegion.current = false;
+      }, 100);
+    },
+    [selectedRegion]
+  );
+
+  // Sync with prop changes, but validate if the region has data
+  React.useEffect(() => {
+    // Don't override if user just changed the region manually
+    if (userChangedRegion.current) return;
+
+    if (propSelectedRegion && propSelectedRegion !== selectedRegion) {
+      // Check if the prop region has data in AirBnB dataset
+      const hasData = airbnbHistoricalData.some(
+        item => item.region === propSelectedRegion
+      );
+
+      if (hasData) {
+        setSelectedRegion(propSelectedRegion);
+      } else {
+        // Fallback to first available region with data
+        const availableRegions = [
+          ...new Set(airbnbHistoricalData.map(item => item.region)),
+        ];
+        const fallbackRegion =
+          availableRegions.find(region => regions.includes(region)) ||
+          'Peel Region';
+        setSelectedRegion(fallbackRegion);
+        logger.warn('AirBnB Dashboard', {
+          message: 'Selected region has no AirBnB data, falling back',
+          originalRegion: propSelectedRegion,
+          fallbackRegion,
+          availableRegions,
+        });
+      }
+    }
+  }, [propSelectedRegion, regions, selectedRegion]);
   const [selectedTimeframe, setSelectedTimeframe] = useState('6');
   const [activeTab, setActiveTab] = useState('overview');
   const [realScrapingEnabled, setRealScrapingEnabled] = useState(false);
   const [scrapingStatus, setScrapingStatus] = useState('idle'); // idle, loading, success, error
   const [realListings, setRealListings] = useState([]);
   const [scrapingError, setScrapingError] = useState(null);
-  
-  // API Data State
-  const [airbnbData, setAirbnbData] = useState(null);
-  const [performanceData, setPerformanceData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const regions = ['Mississauga', 'Brampton', 'Caledon'];
   const timeframes = [
     { value: '3', label: '3 Months' },
     { value: '6', label: '6 Months' },
     { value: '12', label: '12 Months' },
   ];
 
-  // Get region ID from region name
-  const getRegionId = (regionName) => {
-    const regionMap = {
-      'Mississauga': 2,
-      'Brampton': 3,
-      'Caledon': 4
-    };
-    return regionMap[regionName] || 2;
-  };
+  // Filter data based on selections
+  const filteredData = airbnbHistoricalData
+    .filter(item => item.region === selectedRegion)
+    .slice(-parseInt(selectedTimeframe));
 
-  // Load AirBnB data when region changes
-  useEffect(() => {
-    const loadAirbnbData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Safety check for empty data
+  if (filteredData.length === 0) {
+    logger.warn('AirBnB Dashboard', {
+      message: 'No data found for selected region',
+      selectedRegion,
+      availableRegions: [
+        ...new Set(airbnbHistoricalData.map(item => item.region)),
+      ],
+    });
+  }
 
-        const regionId = getRegionId(selectedRegion);
-        
-        // Fetch AirBnB data from API
-        const [performance, listings] = await Promise.all([
-          apiService.getAirbnbPerformanceAnalysis(regionId),
-          apiService.getAirbnbListings({ regionId, limit: 100 })
-        ]);
+  // Log region changes
+  React.useEffect(() => {
+    logger.info('AirBnB Dashboard Region Changed', {
+      selectedRegion,
+      filteredDataLength: filteredData.length,
+      hasData: filteredData.length > 0,
+    });
+  }, [selectedRegion, filteredData]);
 
-        setPerformanceData(performance.data);
-        setAirbnbData(listings.data);
-
-      } catch (err) {
-        console.error('Error loading AirBnB data:', err);
-        setError('Failed to load AirBnB data. Using fallback data.');
-        // Set fallback data
-        setPerformanceData({
-          overall: {
-            region_name: selectedRegion,
-            total_listings: 245,
-            avg_nightly_rate: 125,
-            avg_occupancy_rate: 72,
-            avg_monthly_revenue: 2700,
-            avg_rating: 4.6
-          },
-          byHousingType: [
-            { housing_type: 'Entire Home', listings_count: 180, avg_nightly_rate: 135, avg_occupancy_rate: 75, avg_monthly_revenue: 3000 },
-            { housing_type: 'Private Room', listings_count: 65, avg_nightly_rate: 85, avg_occupancy_rate: 68, avg_monthly_revenue: 1800 }
-          ]
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadAirbnbData();
-  }, [selectedRegion]);
-
-  // Create mock trend data from performance data for charts
-  const generateTrendData = () => {
-    if (!performanceData?.overall) return [];
-    
-    const months = ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024'];
-    const baseRate = performanceData.overall.avg_nightly_rate;
-    const baseOccupancy = performanceData.overall.avg_occupancy_rate;
-    const baseListings = performanceData.overall.total_listings;
-    
-    return months.map((month, index) => ({
-      month,
-      averagePrice: Math.round(baseRate * (0.95 + Math.random() * 0.1)),
-      occupancyRate: Math.round(baseOccupancy * (0.9 + Math.random() * 0.2)),
-      totalListings: Math.round(baseListings * (0.8 + index * 0.05)),
-      newListings: Math.round(10 + Math.random() * 20),
-      averageRating: (4.2 + Math.random() * 0.6).toFixed(1)
-    }));
-  };
-
-  const filteredData = generateTrendData().slice(-parseInt(selectedTimeframe));
-  
-  // Mock competitive and opportunity data
-  const competitiveData = performanceData ? {
-    platforms: [
-      { platform: 'AirBnB', averagePrice: performanceData.overall?.avg_nightly_rate || 125, marketShare: 65, listingCount: performanceData.overall?.total_listings || 245, averageRating: performanceData.overall?.avg_rating || 4.6 },
-      { platform: 'VRBO', averagePrice: Math.round((performanceData.overall?.avg_nightly_rate || 125) * 1.1), marketShare: 25, listingCount: 95, averageRating: 4.4 },
-      { platform: 'Others', averagePrice: Math.round((performanceData.overall?.avg_nightly_rate || 125) * 0.9), marketShare: 10, listingCount: 38, averageRating: 4.2 }
-    ]
-  } : null;
-
-  const opportunityData = performanceData ? {
-    opportunityScore: Math.round(65 + (performanceData.overall?.avg_occupancy_rate || 70) * 0.4),
-    metrics: {
-      priceGrowth: '8.5',
-      listingGrowth: '12.3',
-      occupancyRate: Math.round(performanceData.overall?.avg_occupancy_rate || 70),
-      averageRating: performanceData.overall?.avg_rating || 4.6,
-      averageResponseTime: 45
-    },
-    risks: [
-      'Seasonal demand fluctuations',
-      'Regulatory changes in short-term rentals',
-      'Increasing competition from hotels',
-      'Economic uncertainty affecting travel'
-    ],
-    recommendation: `${selectedRegion} shows strong potential for AirBnB investment with above-average occupancy rates and competitive pricing. Consider focusing on entire home listings for maximum revenue.`
-  } : null;
+  const revenueEstimate = estimateAirBnbRevenue(
+    airbnbHistoricalData,
+    selectedRegion
+  );
+  const opportunityData = airbnbOpportunityAnalysis.find(
+    item => item.region === selectedRegion
+  );
+  const competitiveData = airbnbCompetitiveData.find(
+    item => item.region === selectedRegion
+  );
 
   // Chart colors - using design system
   const colors = designSystem.chartColors.palette;
@@ -175,9 +184,20 @@ const AirBnbDashboard = () => {
       const checkInStr = checkIn.toISOString().split('T')[0];
       const checkOutStr = checkOut.toISOString().split('T')[0];
 
-      console.log(`🔍 Attempting real scraping for ${selectedRegion}...`);
+      // Handle Peel Region scraping - use a broader search
+      const searchLocation =
+        selectedRegion === 'Peel Region'
+          ? 'Peel Region, Ontario'
+          : selectedRegion + ', Ontario';
+
+      logger.scrapingStart(selectedRegion, {
+        checkInStr,
+        checkOutStr,
+        adults: 2,
+        searchLocation,
+      });
       const listings = await scraper.scrapeRealListings(
-        selectedRegion + ', Ontario',
+        searchLocation,
         checkInStr,
         checkOutStr,
         2
@@ -186,7 +206,7 @@ const AirBnbDashboard = () => {
       if (listings && listings.length > 0) {
         setRealListings(listings);
         setScrapingStatus('success');
-        console.log(`✅ Successfully scraped ${listings.length} listings!`);
+        logger.scrapingSuccess(selectedRegion, listings.length);
       } else {
         setScrapingError(
           'No listings found. This is expected due to browser CORS limitations.'
@@ -194,13 +214,19 @@ const AirBnbDashboard = () => {
         setScrapingStatus('error');
       }
     } catch (error) {
-      console.error('❌ Real scraping failed:', error);
+      logger.scrapingError(selectedRegion, error);
       setScrapingError(error.message);
       setScrapingStatus('error');
     }
   };
 
-  const MetricCard = ({ title, value, change, icon, color = designSystem.colors.primary[500] }) => (
+  const MetricCard = ({
+    title,
+    value,
+    change,
+    icon,
+    color = designSystem.colors.primary[500],
+  }) => (
     <div
       className={`${designSystem.components.metric.card} ${designSystem.animations.transition}`}
       style={{ borderLeftColor: color }}
@@ -208,7 +234,11 @@ const AirBnbDashboard = () => {
       <div className={designSystem.layout.flexBetween}>
         <div>
           <h3 className={designSystem.components.metric.label}>{title}</h3>
-          <p className={`${designSystem.components.metric.value} text-gray-900`}>{value}</p>
+          <p
+            className={`${designSystem.components.metric.value} text-gray-900`}
+          >
+            {value}
+          </p>
           {change && (
             <p
               className={`${designSystem.components.metric.change} ${parseFloat(change) >= 0 ? designSystem.typography.success : designSystem.typography.danger}`}
@@ -235,29 +265,38 @@ const AirBnbDashboard = () => {
     </button>
   );
 
-  if (loading) {
-    return (
-      <div className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-xl text-gray-600">Loading AirBnB data...</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}>
+    <div
+      className={`${designSystem.spacing.container} bg-gray-50 min-h-screen`}
+    >
       {/* Header */}
-      <div className={designSystem.spacing.sectionGap.replace('space-y-8', 'mb-8')}>
-        <h1 className={designSystem.typography.h1}>
-          AirBnB Market Analytics
-        </h1>
+      <div
+        className={designSystem.spacing.sectionGap.replace('space-y-8', 'mb-8')}
+      >
+        <h1 className={designSystem.typography.h1}>AirBnB Market Analytics</h1>
         <p className={designSystem.typography.subtitle}>
           Comprehensive analysis of short-term rental market trends and
           opportunities
         </p>
       </div>
+
+      {/* Debug Info (only show when there are issues) */}
+      {filteredData.length === 0 && (
+        <div className="bg-yellow-100 border border-yellow-400 p-4 rounded-lg mb-6">
+          <h3 className="font-semibold text-yellow-800">Debug Information</h3>
+          <p className="text-sm text-yellow-700">
+            Selected Region: {selectedRegion} | Filtered Data Length:{' '}
+            {filteredData.length} | Total Data Length:{' '}
+            {airbnbHistoricalData.length}
+          </p>
+          <p className="text-sm text-yellow-700">
+            Available Regions:{' '}
+            {[...new Set(airbnbHistoricalData.map(item => item.region))].join(
+              ', '
+            )}
+          </p>
+        </div>
+      )}
 
       {/* Controls */}
       <div className={`${designSystem.components.card.base} mb-6`}>
@@ -269,7 +308,7 @@ const AirBnbDashboard = () => {
               </label>
               <select
                 value={selectedRegion}
-                onChange={e => setSelectedRegion(e.target.value)}
+                onChange={e => handleRegionChange(e.target.value)}
                 className={designSystem.components.input.base}
               >
                 {regions.map(region => (
@@ -369,16 +408,6 @@ const AirBnbDashboard = () => {
         )}
       </div>
 
-      {/* Error Banner */}
-      {error && (
-        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <span className="text-yellow-600">⚠️</span>
-            <p className="text-sm font-medium text-yellow-800">{error}</p>
-          </div>
-        </div>
-      )}
-
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6">
         <TabButton
@@ -420,36 +449,49 @@ const AirBnbDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title="Average Nightly Rate"
-              value={`$${Math.round(performanceData?.overall?.avg_nightly_rate || 0)}`}
-              change="5.2"
+              value={
+                filteredData.length > 0
+                  ? `$${filteredData[filteredData.length - 1]?.averagePrice || 0}`
+                  : '$0'
+              }
+              change={airbnbMetrics?.averagePrice?.change}
               icon="🏠"
               color={designSystem.colors.primary[500]}
             />
             <MetricCard
               title="Total Active Listings"
-              value={performanceData?.overall?.total_listings?.toLocaleString() || '0'}
-              change="8.3"
+              value={airbnbMetrics?.totalListings?.toLocaleString() || '0'}
+              change={airbnbMetrics?.newListings?.change}
               icon="📊"
               color={designSystem.colors.success[500]}
             />
             <MetricCard
               title="Average Occupancy Rate"
-              value={`${Math.round(performanceData?.overall?.avg_occupancy_rate || 0)}%`}
-              change="3.7"
+              value={
+                filteredData.length > 0
+                  ? `${filteredData[filteredData.length - 1]?.occupancyRate || 0}%`
+                  : '0%'
+              }
+              change={airbnbMetrics?.occupancyRate?.change}
               icon="📈"
               color={designSystem.colors.warning[500]}
             />
             <MetricCard
               title="Average Rating"
-              value={performanceData?.overall?.avg_rating?.toFixed(1) || '0.0'}
-              change="1.2"
+              value={
+                filteredData.length > 0
+                  ? filteredData[filteredData.length - 1]?.averageRating ||
+                    '0.0'
+                  : '0.0'
+              }
+              change={airbnbMetrics?.averageRating?.change}
               icon="⭐"
               color={designSystem.colors.danger[500]}
             />
           </div>
 
           {/* Revenue Estimation */}
-          {performanceData?.overall && (
+          {revenueEstimate && (
             <div className="bg-white p-6 rounded-lg shadow-lg">
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Revenue Estimation - {selectedRegion}
@@ -461,20 +503,20 @@ const AirBnbDashboard = () => {
                   </p>
                   <p className="text-2xl font-bold text-blue-600">
                     $
-                    {Math.round(performanceData.overall.avg_monthly_revenue || 0).toLocaleString()}
+                    {revenueEstimate.monthlyRevenuePerListing?.toLocaleString()}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <p className="text-sm text-gray-600">Total Market Revenue</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${((performanceData.overall.avg_monthly_revenue * performanceData.overall.total_listings) / 1000000).toFixed(1)}
+                    ${(revenueEstimate.totalMarketRevenue / 1000000).toFixed(1)}
                     M
                   </p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <p className="text-sm text-gray-600">Avg Occupancy Rate</p>
+                  <p className="text-sm text-gray-600">Avg Bookings/Month</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    {Math.round(performanceData.overall.avg_occupancy_rate || 0)}%
+                    {revenueEstimate.estimatedBookingsPerMonth}
                   </p>
                 </div>
               </div>
@@ -486,31 +528,41 @@ const AirBnbDashboard = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               Property Type Distribution
             </h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={performanceData?.byHousingType?.map(item => ({
-                    type: item.housing_type,
-                    count: item.listings_count,
-                    percentage: ((item.listings_count / performanceData.overall.total_listings) * 100).toFixed(1)
-                  })) || []}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="count"
-                  label={({ type, percentage }) => `${type}: ${percentage}%`}
-                >
-                  {(performanceData?.byHousingType || []).map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {filteredData.length > 0 &&
+            filteredData[filteredData.length - 1]?.propertyTypes?.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={filteredData[filteredData.length - 1].propertyTypes}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="count"
+                    label={({ type, percentage }) => `${type}: ${percentage}%`}
+                  >
+                    {filteredData[filteredData.length - 1].propertyTypes.map(
+                      (entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={colors[index % colors.length]}
+                        />
+                      )
+                    )}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-72 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <p className="text-lg">No property type data available</p>
+                  <p className="text-sm">
+                    Select a different region or time period
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -522,22 +574,35 @@ const AirBnbDashboard = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-4">
               Average Nightly Rate Trends
             </h2>
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={filteredData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={value => [`$${value}`, 'Average Price']} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="averagePrice"
-                  stroke="#3B82F6"
-                  strokeWidth={3}
-                  dot={{ fill: '#3B82F6' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {filteredData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={filteredData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={value => [`$${value}`, 'Average Price']}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="averagePrice"
+                    stroke="#3B82F6"
+                    strokeWidth={3}
+                    dot={{ fill: '#3B82F6' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-96 flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <p className="text-lg">No price trend data available</p>
+                  <p className="text-sm">
+                    Select a different region or extend the time period
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Occupancy and Listings Trends */}
