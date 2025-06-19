@@ -10,7 +10,7 @@ export const mapRegionToId = regionName => {
     Brampton: 3,
     Caledon: 4,
   };
-  return mapping[regionName] || 2; // Default to Mississauga (has actual data)
+  return mapping[regionName] || null;
 };
 
 // Map backend region IDs to frontend names
@@ -21,11 +21,11 @@ export const mapIdToRegion = regionId => {
     3: 'Brampton',
     4: 'Caledon',
   };
-  return mapping[regionId] || 'Mississauga';
+  return mapping[regionId] || 'Unknown';
 };
 
 // Map frontend housing type names to backend database IDs
-export const mapHousingTypeToId = typeName => {
+export const mapHousingTypeToId = housingType => {
   const mapping = {
     'All Types': 1,
     Detached: 2,
@@ -33,11 +33,11 @@ export const mapHousingTypeToId = typeName => {
     Townhouse: 4,
     Condo: 5,
   };
-  return mapping[typeName] || 1; // Default to All Types
+  return mapping[housingType] || null;
 };
 
 // Map backend housing type IDs to frontend names
-export const mapIdToHousingType = typeId => {
+export const mapIdToHousingType = housingTypeId => {
   const mapping = {
     1: 'All Types',
     2: 'Detached',
@@ -45,7 +45,7 @@ export const mapIdToHousingType = typeId => {
     4: 'Townhouse',
     5: 'Condo',
   };
-  return mapping[typeId] || 'All Types';
+  return mapping[housingTypeId] || 'Unknown';
 };
 
 // ===== DATA TRANSFORMATION FUNCTIONS =====

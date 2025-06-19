@@ -216,7 +216,7 @@ router.get('/sales', [
     `;
 
     // Clone the params array and add pagination params
-    const dataQueryParams = [...queryParams, parseInt(limit), offset];
+    const dataQueryParams = [...queryParams, parseInt(limit), parseInt(offset)];
     const { rows: sales } = await database.query(dataQuery, dataQueryParams);
 
     res.json({
