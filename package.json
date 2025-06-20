@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A modern housing market dashboard for real-time analytics and insights",
   "author": "Your Name",
+  "homepage": "https://FloaterW.github.io/housing-dashboard",
   "private": true,
   "dependencies": {
     "@arcgis/core": "^4.32.10",
@@ -32,7 +33,9 @@
     "backend:start": "cd backend && npm start",
     "full:dev": "concurrently \"npm run backend:dev\" \"npm run dev\"",
     "clean": "rm -rf build node_modules backend/node_modules",
-    "fresh-install": "npm run clean && npm install && cd backend && npm install"
+    "fresh-install": "npm run clean && npm install && cd backend && npm install",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
