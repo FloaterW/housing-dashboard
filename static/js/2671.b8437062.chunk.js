@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkhousing_dashboard=self.webpackChunkhousing_dashboard||[]).push([[2671],{82671:(s,a,h)=>{h.r(a),h.d(a,{build:()=>u.b});h(47233),h(79138),h(21390),h(86955),h(53908),h(70367),h(2687);var u=h(61157)}}]);
